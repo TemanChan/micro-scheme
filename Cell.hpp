@@ -26,8 +26,9 @@
 #include <iostream>
 #include <string>
 #include <cstddef>
-
-
+#include <stdexcept>
+#include <map>
+#include <utility> // pair
 /**
  * @brief A abstract base class for cells
  */
@@ -53,5 +54,6 @@ public:
 };
 
 extern Cell* const nil;
+extern std::map<std::string, Cell*> symbol_table;
 
 #endif

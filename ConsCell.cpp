@@ -2,9 +2,12 @@
 #include "IntCell.hpp"
 #include "DoubleCell.hpp"
 #include "SymbolCell.hpp"
-#include "errmsg.hpp"
 #include <functional> // plus, minus, multiplies, divides
+#include <map>
+#include <iterator>
 using namespace std;
+
+map<string, Cell*> symbol_table;
 
 ConsCell::ConsCell(Cell* car, Cell* cdr):car_m(car), cdr_m(cdr)
 {
@@ -44,17 +47,17 @@ bool ConsCell::is_nil() const
 
 int ConsCell::get_int() const
 {
-	errmsg("try to access the int member of a non-int Cell");
+	throw runtime_error("try to access the int member of a non-int Cell");
 }
 
 double ConsCell::get_double() const
 {
-	errmsg("try to access the double member of a non-double Cell");
+	throw runtime_error("try to access the double member of a non-double Cell");
 }
 
 std::string ConsCell::get_symbol() const
 {
-	errmsg("try to access the symbol member of a non-symbol Cell");
+	throw runtime_error("try to access the symbol member of a non-symbol Cell");
 }
 
 Cell* ConsCell::get_car() const
@@ -69,7 +72,8 @@ Cell* ConsCell::get_cdr() const
 
 Cell* ConsCell::eval()
 {
-	Cell* curr_car = get_car()->eval();
+	//Cell* curr_car = get_car()->eval();
+	Cell* curr_car = get_car();
 	// curr_car must be a symbol cell, otherwise not a valid expression
 	if(curr_car->get_symbol() == "+"){
 		if(get_cdr()->is_nil())
@@ -79,14 +83,14 @@ Cell* ConsCell::eval()
 	}
 	else if(curr_car->get_symbol() == "-"){
 		if(get_cdr()->is_nil())
-			errmsg("- operator requires at least one operand");
+			throw runtime_error("- operator requires at least one operand");
 		else if(get_cdr()->get_cdr()->is_nil()){
 			if(get_cdr()->get_car()->is_int())
 				return new IntCell(0 - get_cdr()->get_car()->get_int());
 			else if(get_cdr()->get_car()->is_double())
 				return new DoubleCell(0 - get_cdr()->get_car()->get_double());
 			else
-				errmsg("operant for - is neither an int nor a double");
+				throw runtime_error("operant for - is neither an int nor a double");
 		}
 		else
 			return arithmetic_operation(get_cdr(), minus<int>(), minus<double>(), "-");
@@ -99,14 +103,14 @@ Cell* ConsCell::eval()
 	}
 	else if(curr_car->get_symbol() == "/"){
 		if(get_cdr()->is_nil())
-			errmsg("/ operator requires at least one operand");
+			throw runtime_error("/ operator requires at least one operand");
 		else if(get_cdr()->get_cdr()->is_nil()){
 			if(get_cdr()->get_car()->is_int())
 				return new IntCell(1 / get_cdr()->get_car()->get_int());
 			else if(get_cdr()->get_car()->is_double())
 				return new DoubleCell(1.0 / get_cdr()->get_car()->get_double());
 			else
-				errmsg("operant for / is neither an int nor a double");
+				throw runtime_error("operant for / is neither an int nor a double");
 		}
 		else
 			return arithmetic_operation(get_cdr(), divides<int>(), divides<double>(), "/");
@@ -116,7 +120,7 @@ Cell* ConsCell::eval()
 		if(curr_cons->is_nil() || curr_cons->get_cdr()->is_nil() 
 			|| !(curr_cons->get_cdr()->get_cdr()->is_nil() 
 				|| curr_cons->get_cdr()->get_cdr()->get_cdr()->is_nil()))
-			errmsg("if operator requires either two or three operands");
+			throw runtime_error("if operator requires either two or three operands");
 		Cell* condition_cell = curr_cons->get_car()->eval();
 		if(condition_cell->is_int() && condition_cell->get_int()
 			|| condition_cell->is_double() && condition_cell->get_double()
@@ -132,7 +136,7 @@ Cell* ConsCell::eval()
 	}
 	else if(curr_car->get_symbol() == "ceiling"){
 		if(get_cdr()->is_nil() || !get_cdr()->get_cdr()->is_nil())
-			errmsg("ceiling operator requires exactly one double operand");
+			throw runtime_error("ceiling operator requires exactly one double operand");
 		Cell* operand = get_cdr()->get_car()->eval();
 		if(operand->is_double()){
 			double d = operand->get_double();
@@ -142,11 +146,11 @@ Cell* ConsCell::eval()
 			return new IntCell(i);
 		}
 		else
-			errmsg("try to use ceiling operator with non-double Cell");
+			throw runtime_error("try to use ceiling operator with non-double Cell");
 	}
 	else if(curr_car->get_symbol() == "floor"){
 		if(get_cdr()->is_nil() || !get_cdr()->get_cdr()->is_nil())
-			errmsg("floor operator requires exactly one double operand");
+			throw runtime_error("floor operator requires exactly one double operand");
 		Cell* operand = get_cdr()->get_car()->eval();
 		if(operand->is_double()){
 			double d = operand->get_double();
@@ -156,46 +160,104 @@ Cell* ConsCell::eval()
 			return new IntCell(i);
 		}
 		else
-			errmsg("try to use floor operator with non-double Cell");
+			throw runtime_error("try to use floor operator with non-double Cell");
 	}
 	else if(curr_car->get_symbol() == "quote"){
 		if(get_cdr()->is_nil() || !get_cdr()->get_cdr()->is_nil())
-			errmsg("quote operator requires exactly one operand");
+			throw runtime_error("quote operator requires exactly one operand");
 		return get_cdr()->get_car();
 	}
 	else if(curr_car->get_symbol() == "cons"){
 		if(get_cdr()->is_nil() || !(get_cdr()->get_cdr()->is_nil() || get_cdr()->get_cdr()->get_cdr()->is_nil()))
-			errmsg("cons operator requires exactly two operands");
+			throw runtime_error("cons operator requires exactly two operands");
 		Cell* car = get_cdr()->get_car()->eval();
 		Cell* cdr = get_cdr()->get_cdr()->get_car()->eval();
 		return new ConsCell(car, cdr);
 	}
 	else if(curr_car->get_symbol() == "car"){
 		if(get_cdr()->is_nil() || !get_cdr()->get_cdr()->is_nil())
-			errmsg("car operator requires exactly one operand");
+			throw runtime_error("car operator requires exactly one operand");
 		Cell* operand = get_cdr()->get_car()->eval();
 		if(operand->is_cons())
 			return operand->get_car();
 		else
-			errmsg("car operator requires exactly one list operand");
+			throw runtime_error("car operator requires exactly one list operand");
 	}
 	else if(curr_car->get_symbol() == "cdr"){
 		if(get_cdr()->is_nil() || !get_cdr()->get_cdr()->is_nil())
-			errmsg("cdr operator requires exactly one operand");
+			throw runtime_error("cdr operator requires exactly one operand");
 		Cell* operand = get_cdr()->get_car()->eval();
 		if(operand->is_cons())
 			return operand->get_cdr();
 		else
-			errmsg("cdr operator requires exactly one list operand");
+			throw runtime_error("cdr operator requires exactly one list operand");
 	}
 	else if(curr_car->get_symbol() == "nullp"){
 		if(get_cdr()->is_nil() || !get_cdr()->get_cdr()->is_nil())
-			errmsg("nullp operator requires exactly one operand");
+			throw runtime_error("nullp operator requires exactly one operand");
 		Cell* operand = get_cdr()->get_car()->eval();
 		return new IntCell(operand->is_nil());
 	}
+	else if(curr_car->get_symbol() == "define"){
+		if(get_cdr()->is_nil() || !(get_cdr()->get_cdr()->is_nil() || get_cdr()->get_cdr()->get_cdr()->is_nil()))
+			throw runtime_error("define operator requires exactly two operands");
+		string s = get_cdr()->get_car()->get_symbol();
+		if(symbol_table.find(s) != symbol_table.end())
+			throw runtime_error("symbol " + s + " cannot be re-defined");
+		else
+			symbol_table.insert(map<string, Cell*>::value_type(s, get_cdr()->get_cdr()->get_car()->eval()));
+		return nil;
+	}
+	else if(curr_car->get_symbol() == "print"){
+		if(get_cdr()->is_nil() || !get_cdr()->get_cdr()->is_nil())
+			throw runtime_error("print operator requires exactly one operand");
+		get_cdr()->get_car()->eval()->print();
+		cout << endl;
+		return nil;
+	}
+	else if(curr_car->get_symbol() == "eval"){
+		if(get_cdr()->is_nil() || !get_cdr()->get_cdr()->is_nil())
+			throw runtime_error("eval operator requires exactly one operand");
+		return get_cdr()->get_car()->eval()->eval();
+	}
+	else if(curr_car->get_symbol() == "not"){
+		if(get_cdr()->is_nil() || !get_cdr()->get_cdr()->is_nil())
+			throw runtime_error("not operator requires exactly one operand");
+		Cell* operand = get_cdr()->get_car()->eval();
+		if(operand->is_int())
+			return new IntCell(!(static_cast<bool>(operand->get_int())));
+		else
+			return new IntCell(!(static_cast<bool>(operand->get_double())));
+	}
+	else if(curr_car->get_symbol() == "<"){
+		if(get_cdr()->is_nil())
+			return new IntCell(1);
+		int is_increasing = 1;
+		double prev, curr;
+		Cell* curr_cons = get_cdr();
+		Cell* curr_car = curr_cons->get_car()->eval();
+		if(curr_car->is_int())
+			prev = curr_car->get_int();
+		else
+			prev = curr_car->get_double();
+		curr_cons = curr_cons->get_cdr();
+		while(!curr_cons->is_nil()){
+			curr_car = curr_cons->get_car()->eval();
+			if(curr_car->is_int())
+				curr = curr_car->get_int();
+			else
+				curr = curr_car->get_double();
+			if(prev >= curr){
+				is_increasing = 0;
+				break;
+			}
+			prev = curr;
+			curr_cons = curr_cons->get_cdr();
+		}
+		return new IntCell(is_increasing);
+	}
 	else
-		errmsg(curr_car->get_symbol() + string(" is not an operator"));
+		throw runtime_error(curr_car->get_symbol() + string(" is not an operator"));
 }
 
 template <typename IntOp, typename DoubleOp>
@@ -219,7 +281,7 @@ Cell* ConsCell::arithmetic_operation(Cell* const operands, IntOp int_op, DoubleO
 				break;
 			}
 			else
-				errmsg("operant for " + op + " is neither an int nor a double");
+				throw runtime_error("operant for " + op + " is neither an int nor a double");
 		}
 		if(curr_cons->is_nil())
 			return new IntCell(int_result);
@@ -227,7 +289,7 @@ Cell* ConsCell::arithmetic_operation(Cell* const operands, IntOp int_op, DoubleO
 	else if(curr_operand->is_double())
 		double_result = curr_operand->get_double();
 	else
-		errmsg("operant for " + op + " is neither an int nor a double");
+		throw runtime_error("operant for " + op + " is neither an int nor a double");
 
 	while(!curr_cons->is_nil()){
 		curr_operand = curr_cons->get_car()->eval();
@@ -237,7 +299,7 @@ Cell* ConsCell::arithmetic_operation(Cell* const operands, IntOp int_op, DoubleO
 		else if(curr_operand->is_double())
 			double_result = double_op(double_result, curr_operand->get_double());
 		else
-			errmsg("operant for " + op + " is neither an int nor a double");
+			throw runtime_error("operant for " + op + " is neither an int nor a double");
 	}
 	return new DoubleCell(double_result);
 }

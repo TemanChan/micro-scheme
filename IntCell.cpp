@@ -1,4 +1,3 @@
-#include "errmsg.hpp"
 #include "IntCell.hpp"
 using namespace std;
 
@@ -45,22 +44,22 @@ int IntCell::get_int() const
 
 double IntCell::get_double() const
 {
-	errmsg("try to access the double member of a non-double Cell");
+	throw runtime_error("try to access the double member of a non-double Cell");
 }
 
 std::string IntCell::get_symbol() const
 {
-	errmsg("try to access the symbol member of a non-symbol Cell");
+	throw runtime_error("try to access the symbol member of a non-symbol Cell");
 }
 
 Cell* IntCell::get_car() const
 {
-	errmsg("try to access the car member of a non-cons Cell");
+	throw runtime_error("try to access the car member of a non-cons Cell");
 }
 
 Cell* IntCell::get_cdr() const
 {
-	errmsg("try to access the cdr member of a non-cons Cell");
+	throw runtime_error("try to access the cdr member of a non-cons Cell");
 }
 
 Cell* IntCell::eval()

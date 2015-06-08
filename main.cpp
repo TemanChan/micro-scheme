@@ -7,11 +7,12 @@
  * command-line argument.
  */
 
+#include <stdexcept>
 #include "parse.hpp"
 #include "eval.hpp"
 #include <sstream>
 #include <fstream>
-
+ 
 using namespace std;
 
 /**
@@ -20,15 +21,21 @@ using namespace std;
  */
 void parse_eval_print(string sexpr)
 {
-	Cell* root = parse(sexpr);
-	Cell* result = eval(root);
-	if ( result == nil ) {
-		cout << "()" << endl;
-	} else {
-		cout << *result << endl;
-	}
-	if (result != nil) {
-		delete result;
+	try {
+		Cell* root = parse(sexpr);
+		Cell* result = eval(root);
+		if ( result == NULL ) {
+			cout << "()" << endl;
+		} else {
+			cout << *result << endl;
+		}
+		// delete root;
+		// delete result;
+	} catch (runtime_error &e) {
+		cerr << "ERROR: " << e.what() << endl;
+	} catch (logic_error &e) {
+		cerr << "LOGIC ERROR: " << e.what() << endl;
+		exit(1);
 	}
 }
 

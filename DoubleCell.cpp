@@ -1,5 +1,4 @@
 #include "DoubleCell.hpp"
-#include "errmsg.hpp"
 using namespace std;
 
 DoubleCell::DoubleCell(double d):double_m(d)
@@ -39,7 +38,7 @@ bool DoubleCell::is_nil() const
 
 int DoubleCell::get_int() const
 {
-	errmsg("try to access the int member of a non-int Cell");
+	throw runtime_error("try to access the int member of a non-int Cell");
 }
 
 double DoubleCell::get_double() const
@@ -49,17 +48,17 @@ double DoubleCell::get_double() const
 
 std::string DoubleCell::get_symbol() const
 {
-	errmsg("try to access the symbol member of a non-symbol Cell");
+	throw runtime_error("try to access the symbol member of a non-symbol Cell");
 }
 
 Cell* DoubleCell::get_car() const
 {
-	errmsg("try to access the car member of a non-cons Cell");
+	throw runtime_error("try to access the car member of a non-cons Cell");
 }
 
 Cell* DoubleCell::get_cdr() const
 {
-	errmsg("try to access the cdr member of a non-cons Cell");
+	throw runtime_error("try to access the cdr member of a non-cons Cell");
 }
 
 Cell* DoubleCell::eval()

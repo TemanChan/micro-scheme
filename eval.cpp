@@ -7,7 +7,6 @@
  */
 
 #include "eval.hpp"
-#include "errmsg.hpp"
 
 Cell* eval(Cell* const c)
 {

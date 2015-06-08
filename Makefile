@@ -6,24 +6,24 @@ OBJS = ConsCell.o DoubleCell.o eval.o IntCell.o main.o parse.o SymbolCell.o
 ${TARGET}: ${OBJS}
 	${CC} ${FLAGS} -o ${TARGET} $^
 
-ConsCell.o: ConsCell.cpp ConsCell.hpp Cell.hpp errmsg.hpp
+ConsCell.o: ConsCell.cpp ConsCell.hpp Cell.hpp
 	${CC} ${FLAGS} -c ConsCell.cpp
 
-DoubleCell.o: DoubleCell.cpp DoubleCell.hpp Cell.hpp errmsg.hpp
+DoubleCell.o: DoubleCell.cpp DoubleCell.hpp Cell.hpp
 	${CC} ${FLAGS} -c DoubleCell.cpp
 
-eval.o: eval.cpp eval.hpp cons.hpp Cell.hpp IntCell.hpp errmsg.hpp \
+eval.o: eval.cpp eval.hpp cons.hpp Cell.hpp IntCell.hpp \
  DoubleCell.hpp SymbolCell.hpp ConsCell.hpp
 	${CC} ${FLAGS} -c eval.cpp
 
-IntCell.o: IntCell.cpp IntCell.hpp Cell.hpp errmsg.hpp
+IntCell.o: IntCell.cpp IntCell.hpp Cell.hpp
 	${CC} ${FLAGS} -c IntCell.cpp
 
-main.o: main.cpp parse.hpp cons.hpp Cell.hpp IntCell.hpp errmsg.hpp \
+main.o: main.cpp parse.hpp cons.hpp Cell.hpp IntCell.hpp \
  DoubleCell.hpp SymbolCell.hpp ConsCell.hpp eval.hpp
 	${CC} ${FLAGS} -c main.cpp
 
-parse.o: parse.cpp parse.hpp cons.hpp Cell.hpp IntCell.hpp errmsg.hpp \
+parse.o: parse.cpp parse.hpp cons.hpp Cell.hpp IntCell.hpp \
  DoubleCell.hpp SymbolCell.hpp ConsCell.hpp
 	${CC} ${FLAGS} -c parse.cpp
 

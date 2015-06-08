@@ -19,3 +19,5 @@
 (ceiling (+ 1 1))
 (ceiling (if 5 0 1.1))
 (+ 4 (quote (* 2 3)))
+fuck
+(define you bitch)
