@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+      "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
+  <title>COMP2012H Programming Assignment 2, Fall 2014</title>
+  <meta name="generator" content="amaya 8.8.3, see http://www.w3.org/Amaya/"
+  />
+</head>
+
+<body>
+<h1>COMP2012H Programming Assignment 2, Fall 2014</h1>
+
+<p><strong>Author:</strong> <a href="http://www.cs.ust.hk/~dekai/">Dekai
+Wu</a></p>
+
+<p><strong>Date:</strong> Due 2014.10.10 at 23:00 by CASS</p>
+
+<p><strong>Download:</strong> <a
+href="http://www.cs.ust.hk/~dekai/2012H/assignments/a2.tar.gz">http://www.cs.ust.hk/~dekai/2012H/assignments/a2.tar.gz</a></p>
+
+<p><strong>Assignment page:</strong> <a
+href="http://www.cs.ust.hk/~dekai/2012H/assignments/a2/html/">http://www.cs.ust.hk/~dekai/2012H/assignments/a2/html/</a></p>
+
+<p><strong>Course page:</strong> <a
+href="http://www.cs.ust.hk/~dekai/2012H/">http://www.cs.ust.hk/~dekai/2012H/</a></p>
+
+<h3>Your assignment</h3>
+
+<p>You are assigned to maintain and extend the expression evaluator code
+built in <a href="http://www.cs.ust.hk/~dekai/2012H/assignments/a1/html/">Assignment 1</a>.
+Your job this time is to take the following steps.</p>
+
+<h3>Step 1: Re-design Cell using polymorphism</h3>
+
+<p>Completely re-implement the <tt>Cell</tt> class, to eliminate the use of a
+tagged union, by instead making use of polymorphism virtual functions. The
+<tt>Cell</tt> class is to become an abstract base class (ABC). Derived
+classes should include <tt>IntCell</tt>, <tt>DoubleCell</tt>,
+<tt>SymbolCell</tt>, and <tt>ConsCell</tt>.</p>
+
+<p>After this step, your <tt>eval()</tt> implementation from Assignment 1
+should still work (assuming you didn't break encapsulation!) Note that the
+interface specified in <tt>cons.hpp</tt> has <em>not</em> changed. The
+function <em>definitions</em> in <tt>cons.hpp</tt> may have changed to fit
+the new <tt>Cell</tt> implementation's use of late binding, but the
+<em>declarations</em> have not. This means that <tt>parse()</tt> and
+<tt>eval()</tt> and any other functions that made proper use of the interface
+encapsulated by <tt>cons.hpp</tt> should all still work.</p>
+
+<h3>Step 2: Do a cleaner re-design of eval() to take advantage of
+polymorphism</h3>
+
+<p>Re-design your <tt>eval()</tt> implementation to be much cleaner, taking
+advantage of the polymorphism to get rid of all those ugly
+<tt>if-then-else</tt> and/or <tt>switch</tt> statements from your Assignment
+1 version, by instead making appropriate use of function overriding and/or
+overloading.</p>
+
+<p>To accomplish this step, you will have to extend the interface in
+<tt>Cell.hpp</tt>. Because of this, note that after this step, your new
+<tt>eval()</tt> implementation may no longer work with your old
+implementation of the <tt>Cell</tt> class from Assignment 1.</p>
+
+<h3>Step 3: Generalize to add more arithmetic operators</h3>
+
+<p>Take advantage of the cleaner polymorphic implementation, to add more
+arithmetic operators <em>neatly</em>. Besides the <tt>+</tt> and
+<tt>ceiling</tt> operators from Assignment 1, you should add the <tt>-</tt>,
+<tt>*</tt>, <tt>/</tt>, and <tt>floor</tt> arithmetic operators for
+<tt>int</tt> and <tt>double</tt> operands.</p>
+
+<p>Note that the <tt>-</tt>, <tt>*</tt>, and <tt>/</tt> operators are
+generalized similarly to the <tt>+</tt> operator. The <tt>-</tt>, <tt>*</tt>,
+and <tt>/</tt> operators can also be called with more than two arguments; for
+example, <tt>(- 11 2 3)</tt> means the same thing as <tt>(- (- 11 2) 3)</tt>.
+The same holds for the <tt>*</tt> and <tt>/</tt> operators, so for example,
+<tt>(* 11 2 3)</tt> means the same thing as <tt>(* (* 11 2) 3)</tt>, while
+<tt>(/ 11 2 3)</tt> means the same thing as <tt>(/ (/ 11 2) 3)</tt>.</p>
+
+<p>If the <tt>*</tt> operator is called with zero arguments, then it simply
+returns 1, which is the identity value for multiplication (just like 0 for
+the <tt>+</tt> operator). If the <tt>*</tt> operator is called with one
+argument, then it returns the same value.</p>
+
+<p>If the <tt>-</tt> operator is called with one argument, then it simply
+returns the negative of the argument. If the <tt>/</tt> operator is called
+with one argument, then it simply returns the inverse of the argument.</p>
+
+<p>To avoid ambiguity, the <tt>-</tt> and <tt>/</tt> operators
+<em>cannot</em> be called with zero arguments, unlike the <tt>+</tt> and
+<tt>*</tt> operators. So, for example <tt>(-)</tt> is considered to be a
+semantically ill-formed expression.</p>
+
+<p>If you've done things correctly, you should notice how much easier it is
+to add all these operators, now that you have polymorphism.</p>
+
+<h3>Step 4: Implement quoted expressions</h3>
+
+<p>Next you will add support for <em>quoted expressions</em>, which allow you
+to prevent <tt>eval()</tt> from trying to evaluate s-expressions. The special
+<tt>quote</tt> operator takes exactly one operand, which can be <em>any</em>
+s-expression, and simply returns the exact same expression. The operand is
+<em>not</em> evaluated, so it just needs to be a syntactically valid tree
+(including empty lists as well as leaf nodes representing atomic ints,
+doubles, or symbols). It does <em>not</em> need to be a semantically valid
+expression. For example:</p>
+
+<p><tt>&gt; (quote (a b c))<br />
+(a b c)<br />
+&gt; (quote (+ 2 3))<br />
+(+ 2 3)<br />
+&gt; (quote (if if 5))<br />
+(if if 5)<br />
+&gt; (quote ())<br />
+()<br />
+&gt; (quote (quote (a b c)))<br />
+(quote (a b c))<br />
+&gt; (quote hello)<br />
+hello<br />
+&gt; (quote 6)<br />
+6<br />
+&gt; (quote 3.14)<br />
+3.14<br />
+&gt; (+ 4 (quote 2))<br />
+6<br />
+&gt; (+ 4 (quote (* 2 3)))<br />
+ERROR: operand of + cannot be a list<br />
+&gt; (+ 4 (* 2 3))<br />
+10</tt></p>
+
+<h3>Step 5: Expose <tt>cons</tt>, <tt>car</tt>, <tt>cdr</tt>, and
+<tt>nullp</tt> in Scheme</h3>
+
+<p>Finally, you will expose your existing <tt>cons.hpp</tt> C++
+implementation of <tt>cons</tt>, <tt>car</tt>, <tt>cdr</tt>, and
+<tt>nullp</tt> so that they can be called from Scheme just like other
+operators such as <tt>ceiling</tt>:</p>
+
+<p><tt>&gt; (cons 4 (quote ()))<br />
+(4)<br />
+&gt; (cons (quote hello) (cons 4 (quote ())))<br />
+(hello 4)<br />
+&gt; (cons 2 (cons (quote hello) (cons 4 (quote ()))))<br />
+(2 hello 4)<br />
+&gt; (car (cons 2 (cons (quote hello) (cons 4 (quote ())))))<br />
+2<br />
+&gt; (cdr (cons 2 (cons (quote hello) (cons 4 (quote ())))))<br />
+(hello 4)<br />
+&gt; (nullp foo)<br />
+0<br />
+&gt; (nullp 0)<br />
+0<br />
+&gt; (nullp 1)<br />
+0<br />
+&gt; (nullp (quote ()))<br />
+1<br />
+&gt; (nullp (quote (a b c)))<br />
+0</tt></p>
+
+<h3>Putting it all together</h3>
+
+<p>This time, we are not including any dummy implementation of
+<tt>Cell.hpp</tt>, <tt>Cell.cpp</tt> or <tt>eval.cpp</tt> at all. The
+implementation is up to you. But be careful! You must make sure your
+<tt>Cell</tt> interface fits what <tt>cons.hpp</tt> expects!</p>
+
+<p>We're again including <tt>parse.cpp</tt> for your convenience, in case you
+want to build your assignment on some other machine outside the lab. But
+remember you shouldn't look inside <tt>parse.cpp</tt> at all. (In the real
+world, you would only get the separately-compiled <tt>parse.o</tt>, so you
+<em>couldn't</em> look inside <tt>parse.cpp</tt> even if you wanted to!)</p>
+
+<h3>Important reminders</h3>
+
+<p>You must follow the design approach outlined in this document. Do
+<em>not</em> just implement the required functionality using a different
+design.</p>
+
+<p>You are expected to make best possible use of polymorphism and virtual
+functions. For example, of course your old <tt>eval()</tt> from Assignment 1
+should still work, but without making correct use of polymorphism throughout,
+it will not be considered a solution to Assignment 2 (even if it implements
+the additional operators).</p>
+
+<p>This time you <em>must</em> use virtual functions in this assignment, but
+you still may <em>not</em> use templates. This assignment is about dynamic OO
+support in C++. (You'll get a chance to use templates in the following
+assignment...)</p>
+
+<p>Remember we are focusing on proper use of encapsulation. So you still
+should <em>not</em> edit the files <tt>parse.hpp</tt>, <tt>parse.cpp</tt>,
+<tt>cons.hpp</tt>, <tt>eval.hpp</tt>, or <tt>main.cpp</tt>. Again, the
+programming assignments are mini-exercises in how multiple programmers are
+supposed to interact and communicate in the real world; these files are
+<em>owned</em> and <em>maintained</em> by the other author(s).</p>
+
+<p>You will need to turn in a tar file <tt>a2.tar.gz</tt> containing all
+source files including your own implementation of <tt>Cell.hpp</tt>,
+<tt>Cell.cpp</tt>, and <tt>eval.cpp</tt>. Depending on your approach, you may
+or may not also wish to add more files. You should also make sure to include
+all doxygen generated HTML documentation.</p>
+
+<p>Depending on your approach, you may or may not need to change the
+<tt>Makefile</tt>. Whether you changed it or not, always make sure you
+include whatever <tt>Makefile</tt> is needed to build your program, when you
+submit assignment. Otherwise, the graders cannot build your program.</p>
+
+<p>You must write the final version of the program on your own. Sophisticated
+plagiarism detection systems are in operation, and they are pretty good at
+catching copying! If you worked in study groups, you must also acknowledge
+your collaborators in the write-up for each problem, whether or not they are
+classmates. Other cases will be dealt with as plagiarism. Re-read the policy
+on the course home page, and note the University's tougher policy this year
+regarding cheating.</p>
+
+<p><strong>Your programming style (how clearly and how well you speak C++) is
+what will be graded. Correct functioning of your program is necessary but not
+sufficient!</strong></p>
+<hr />
+
+<p style="text-align: right"><i>Last updated: 2014.09.26 dekai</i></p>
+</body>
+</html>
