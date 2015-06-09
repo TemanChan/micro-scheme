@@ -36,17 +36,27 @@ doc:
 test_sim:
 	rm -f testoutput_simple.txt
 	./main testinput_simple.txt > testoutput_simple.txt
-	diff testreference_simple.txt testoutput_simple.txt
+	diff testref_simple.txt testoutput_simple.txt
 
-test_gen:
+test_g:
 	rm -f testoutput_general.txt
 	./main testinput_general.txt > testoutput_general.txt
-	diff testreference_general.txt testoutput_general.txt
+	diff testref_general.txt testoutput_general.txt
 
 test_ari:
 	rm -f testoutput_arithmetic.txt
 	./main testinput_arithmetic.txt > testoutput_arithmetic.txt
-	diff testreference_arithmetic.txt testoutput_arithmetic.txt
+	diff testref_arithmetic.txt testoutput_arithmetic.txt
+
+test_easy:
+	rm -f testoutput_easy.txt
+	./main testinput_easy.txt > testoutput_easy.txt
+	diff testref_easy.txt testoutput_easy.txt
+
+test_gen:
+	rm -f testoutput_gen.txt
+	./main testinput_gen.txt > testoutput_gen.txt
+	diff testref_gen.txt testoutput_gen.txt
 
 clean:
 	rm -f ${TARGET} ${OBJS} testoutput*.txt

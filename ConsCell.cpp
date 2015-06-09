@@ -74,7 +74,8 @@ Cell* ConsCell::eval()
 {
 	//Cell* curr_car = get_car()->eval();
 	Cell* curr_car = get_car();
-	// curr_car must be a symbol cell, otherwise not a valid expression
+	if(!curr_car->is_symbol())
+		curr_car = curr_car->eval(); // eval current car first only when it is not a symbol cell to support expressions like ((quote if) 1 2 3)
 	if(curr_car->get_symbol() == "+"){
 		if(get_cdr()->is_nil())
 			return new IntCell(0);
@@ -85,10 +86,11 @@ Cell* ConsCell::eval()
 		if(get_cdr()->is_nil())
 			throw runtime_error("- operator requires at least one operand");
 		else if(get_cdr()->get_cdr()->is_nil()){
-			if(get_cdr()->get_car()->is_int())
-				return new IntCell(0 - get_cdr()->get_car()->get_int());
-			else if(get_cdr()->get_car()->is_double())
-				return new DoubleCell(0 - get_cdr()->get_car()->get_double());
+			Cell* operand = get_cdr()->get_car()->eval();
+			if(operand->is_int())
+				return new IntCell(0 - operand->get_int());
+			else if(operand->is_double())
+				return new DoubleCell(0 - operand->get_double());
 			else
 				throw runtime_error("operant for - is neither an int nor a double");
 		}
@@ -105,10 +107,11 @@ Cell* ConsCell::eval()
 		if(get_cdr()->is_nil())
 			throw runtime_error("/ operator requires at least one operand");
 		else if(get_cdr()->get_cdr()->is_nil()){
-			if(get_cdr()->get_car()->is_int())
-				return new IntCell(1 / get_cdr()->get_car()->get_int());
-			else if(get_cdr()->get_car()->is_double())
-				return new DoubleCell(1.0 / get_cdr()->get_car()->get_double());
+			Cell* operand = get_cdr()->get_car()->eval();
+			if(operand->is_int())
+				return new IntCell(1 / operand->get_int());
+			else if(operand->is_double())
+				return new DoubleCell(1.0 / operand->get_double());
 			else
 				throw runtime_error("operant for / is neither an int nor a double");
 		}
@@ -249,6 +252,13 @@ Cell* ConsCell::eval()
 				curr = curr_car->get_double();
 			if(prev >= curr){
 				is_increasing = 0;
+				// check whether the remaining operands are valid or not;
+				do{
+					curr_cons = curr_cons->get_cdr();
+					curr_car = curr_cons->get_car()->eval();
+					if(!(curr_car->is_int() || curr_car->is_double()))
+						throw runtime_error("try to use < operator with a Cell that can not do");
+				}while(!curr_cons->is_nil());
 				break;
 			}
 			prev = curr;
