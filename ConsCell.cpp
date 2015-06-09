@@ -224,10 +224,10 @@ Cell* ConsCell::eval()
 		if(get_cdr()->is_nil() || !get_cdr()->get_cdr()->is_nil())
 			throw runtime_error("not operator requires exactly one operand");
 		Cell* operand = get_cdr()->get_car()->eval();
-		if(operand->is_int())
-			return new IntCell(!(static_cast<bool>(operand->get_int())));
+		if(operand->is_int() && operand->get_int() == 0 || operand->is_double() && operand->get_double() == 0)
+			return new IntCell(1);
 		else
-			return new IntCell(!(static_cast<bool>(operand->get_double())));
+			return new IntCell(0);
 	}
 	else if(curr_car->get_symbol() == "<"){
 		if(get_cdr()->is_nil())
