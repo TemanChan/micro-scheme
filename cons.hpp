@@ -14,6 +14,7 @@
 #include "DoubleCell.hpp"
 #include "SymbolCell.hpp"
 #include "ConsCell.hpp"
+#include "ProcedureCell.hpp"
 #include <string>
 #include <iostream>
 
@@ -28,7 +29,7 @@ extern Cell* const nil;
  */
 inline Cell* make_int(const int i)
 {
-  return new IntCell(i);
+	return new IntCell(i);
 }
 
 /**
@@ -37,7 +38,7 @@ inline Cell* make_int(const int i)
  */
 inline Cell* make_double(const double d)
 {
-  return new DoubleCell(d);
+	return new DoubleCell(d);
 }
 
 /**
@@ -46,7 +47,7 @@ inline Cell* make_double(const double d)
  */
 inline Cell* make_symbol(const char* const s)
 {
-  return new SymbolCell(s);
+	return new SymbolCell(s);
 }
 
 /**
@@ -56,7 +57,17 @@ inline Cell* make_symbol(const char* const s)
  */
 inline Cell* cons(Cell* const my_car, Cell* const my_cdr)
 {
-  return new ConsCell(my_car, my_cdr);
+	return new ConsCell(my_car, my_cdr);
+}
+
+/**
+ * \brief Make a procedure cell.
+ * \param my_formals A list of the procedure's formal parameter names.
+ * \param my_body The body (an expression) of the procedure.
+ */
+inline Cell* lambda(Cell* const my_formals, Cell* const my_body)
+{
+	return new ProcedureCell(my_formals, my_body);
 }
 
 /**
@@ -65,7 +76,7 @@ inline Cell* cons(Cell* const my_car, Cell* const my_cdr)
  */
 inline bool nullp(Cell* const c)
 {
-  return (c == nil);
+	return (c == nil);
 }
 
 /**
@@ -74,16 +85,16 @@ inline bool nullp(Cell* const c)
  */
 inline bool listp(Cell* const c)
 {
-  return nullp(c) || c->is_cons();
+	return nullp(c) || c->is_cons();
 }
 
 /**
- * @brief Check if c points to a cons cell.
- * @return True iff c points to a cons cell.
+ * \brief Check if c is a procedure cell.
+ * \return True iff c is a procedure cell.
  */
-inline bool consp(Cell* const c)
+inline bool procedurep(Cell* const c)
 {
-  return !nullp(c) && c->is_cons();
+	return !nullp(c) && c->is_procedure();
 }
 
 /**
@@ -92,7 +103,7 @@ inline bool consp(Cell* const c)
  */
 inline bool intp(Cell* const c)
 {
-  return !nullp(c) && c->is_int();
+	return !nullp(c) && c->is_int();
 }
 
 /**
@@ -101,7 +112,7 @@ inline bool intp(Cell* const c)
  */
 inline bool doublep(Cell* const c)
 {
-  return !nullp(c) && c->is_double();
+	return !nullp(c) && c->is_double();
 }
 
 /**
@@ -110,7 +121,7 @@ inline bool doublep(Cell* const c)
  */
 inline bool symbolp(Cell* const c)
 {
-  return !nullp(c) && c->is_symbol();
+	return !nullp(c) && c->is_symbol();
 }
 
 /**
@@ -119,7 +130,7 @@ inline bool symbolp(Cell* const c)
  */
 inline int get_int(Cell* const c)
 {
-  return c->get_int();
+	return c->get_int();
 }
 
 /**
@@ -128,7 +139,7 @@ inline int get_int(Cell* const c)
  */
 inline double get_double(Cell* const c)
 {
-  return c->get_double();
+	return c->get_double();
 }
 
 /**
@@ -138,7 +149,7 @@ inline double get_double(Cell* const c)
  */
 inline std::string get_symbol(Cell* const c)
 {
-  return c->get_symbol();
+	return c->get_symbol();
 }
 
 /**
@@ -147,7 +158,7 @@ inline std::string get_symbol(Cell* const c)
  */
 inline Cell* car(Cell* const c)
 {
-  return c->get_car();
+	return c->get_car();
 }
 
 /**
@@ -156,7 +167,27 @@ inline Cell* car(Cell* const c)
  */
 inline Cell* cdr(Cell* const c)
 {
-  return c->get_cdr();
+	return c->get_cdr();
+}
+
+/**
+ * \brief Accessor (error if c is not a procedure cell).
+ * \return Pointer to the cons list of formal parameters for the function
+ * pointed to by c.
+ */
+inline Cell* get_formals(Cell* const c)
+{
+	return c->get_formals();
+}
+
+/**
+ * \brief Accessor (error if c is not a procedure cell).
+ * \return Pointer to the cons list containing the expression defining the
+ * body for the function pointed to by c.
+ */
+inline Cell* get_body(Cell* const c)
+{
+	return c->get_body();
 }
 
 /**
@@ -166,8 +197,8 @@ inline Cell* cdr(Cell* const c)
  */
 inline std::ostream& operator<<(std::ostream& os, const Cell& c)
 {
-  c.print(os);
-  return os;
+	c.print(os);
+	return os;
 }
 
 #endif // CONS_HPP

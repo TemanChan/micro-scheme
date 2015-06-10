@@ -21,6 +21,7 @@ public:
 	virtual Cell* get_cdr() const;
 	virtual void print(std::ostream& os = std::cout) const;
 	virtual Cell* eval();
+	virtual Cell* apply(Cell* const args);
 private:
 	int int_m;
 };

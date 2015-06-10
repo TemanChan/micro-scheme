@@ -51,6 +51,7 @@ public:
 	virtual Cell* get_cdr() const = 0;
 	virtual void print(std::ostream& os = std::cout) const = 0;
 	virtual Cell* eval() = 0;
+	virtual Cell* apply(Cell* const args) = 0;
 };
 
 extern Cell* const nil;
