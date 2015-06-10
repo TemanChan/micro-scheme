@@ -31,6 +31,11 @@ bool DoubleCell::is_cons() const
 	return false;
 }
 
+bool DoubleCell::is_procedure() const
+{
+	return false;
+}
+
 bool DoubleCell::is_nil() const
 {
 	return false;
@@ -59,6 +64,21 @@ Cell* DoubleCell::get_car() const
 Cell* DoubleCell::get_cdr() const
 {
 	throw runtime_error("try to access the cdr member of a non-cons Cell");
+}
+
+Cell* DoubleCell::get_formals() const
+{
+	throw runtime_error("try to access the formals member of a non-procedure Cell");
+}
+
+Cell* DoubleCell::get_body() const
+{
+	throw runtime_error("try to access the body member of a non-procedure Cell");
+}
+
+Cell* DoubleCell::apply(Cell* const args)
+{
+	throw runtime_error("try to apply with a double Cell");
 }
 
 Cell* DoubleCell::eval()

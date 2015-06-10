@@ -32,6 +32,11 @@ bool IntCell::is_cons() const
 	return false;
 }
 
+bool IntCell::is_procedure() const
+{
+	return false;
+}
+
 bool IntCell::is_nil() const
 {
 	return false;
@@ -60,6 +65,21 @@ Cell* IntCell::get_car() const
 Cell* IntCell::get_cdr() const
 {
 	throw runtime_error("try to access the cdr member of a non-cons Cell");
+}
+
+Cell* IntCell::get_formals() const
+{
+	throw runtime_error("try to access the formals member of a non-procedure Cell");
+}
+
+Cell* IntCell::get_body() const
+{
+	throw runtime_error("try to access the body member of a non-procedure Cell");
+}
+
+Cell* IntCell::apply(Cell* const args)
+{
+	throw runtime_error("try to apply with an int Cell");
 }
 
 Cell* IntCell::eval()
