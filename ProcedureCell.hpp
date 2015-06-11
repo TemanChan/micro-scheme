@@ -1,3 +1,6 @@
+#ifndef PROCEDURECELL_HPP
+#define PROCEDURECELL_HPP
+
 #include "Cell.hpp"
 
 class ProcedureCell:public Cell
@@ -7,6 +10,8 @@ public:
 	 * @brief Check if this is an int cell.
 	 * @return True iff this is an int cell.
 	 */
+	ProcedureCell(Cell* formals, Cell* body);
+	virtual ~ProcedureCell();
 	virtual bool is_int() const;
 	virtual bool is_double() const;
 	virtual bool is_symbol() const;
@@ -28,3 +33,5 @@ private:
 	Cell* formals_m;
 	Cell* body_m;
 };
+
+#endif

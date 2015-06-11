@@ -2,7 +2,6 @@
 using namespace std;
 
 Cell* const nil = new SymbolCell("()");
-list<map<string, Cell*>> symbol_table;
 
 SymbolCell::SymbolCell(const string& s):symbol_m(s)
 {
@@ -91,7 +90,7 @@ Cell* SymbolCell::eval()
 	if(this == nil)
 		throw runtime_error("empty list cannot be evaluated");
 	map<string, Cell*>::iterator it = search_table(symbol_m);
-	if(it == symbol_table.rbegin().end())
+	if(it == symbol_table.rbegin()->end())
 		throw runtime_error("attempt to evaluate un-definded symbol Cell " + symbol_m);
 	else
 		return it->second;

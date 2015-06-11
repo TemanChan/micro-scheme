@@ -41,6 +41,7 @@ public:
 	 * @brief Check if this is an int cell.
 	 * @return True iff this is an int cell.
 	 */
+	virtual ~Cell(){}
 	virtual bool is_int() const = 0;
 	virtual bool is_double() const = 0;
 	virtual bool is_symbol() const = 0;
@@ -60,16 +61,17 @@ public:
 };
 
 extern Cell* const nil;
-extern std::list<std::map<std::string, Cell*>> symbol_table;
+extern std::list<std::map<std::string, Cell*> > symbol_table;
 
 inline std::map<std::string, Cell*>::iterator search_table(std::string& s)
 {
-	std::list<std::map<std::string, Cell*>>::iterator i = symbol_table.begin();
+	std::list<std::map<std::string, Cell*> >::iterator i = symbol_table.begin();
 	std::map<std::string, Cell*>::iterator j;
 	for(; i != symbol_table.end(); ++i){
-		j = (*it).find(s);
-		if(j != (*it).end())
+		j = i->find(s);
+		if(j != i->end()){
 			return j;
+		}
 	}
 	return j;
 }

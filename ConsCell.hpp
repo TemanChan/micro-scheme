@@ -26,16 +26,6 @@ public:
 	virtual Cell* apply(Cell* const args);
 
 private:
-	/*
-	Cell* plus(Cell* c);
-	Cell* minus(Cell* c);
-	Cell* multiply(Cell* c);
-	Cell* divide(Cell* c);
-	Cell* evalIf(Cell* c);
-	Cell* evalCeiling(Cell* c);
-	*/
-	template <typename IntOp, typename DoubleOp>
-	Cell* arithmetic_operation(Cell* const operands, IntOp int_op, DoubleOp double_op, const std::string& op);
 	Cell* car_m;
 	Cell* cdr_m;
 };

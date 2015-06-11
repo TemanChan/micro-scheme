@@ -1,7 +1,8 @@
 CC = g++
-FLAGS = -std=c++11
+#FLAGS = -std=c++11
 TARGET = main
-OBJS = ConsCell.o DoubleCell.o eval.o IntCell.o main.o parse.o SymbolCell.o
+OBJS = ConsCell.o DoubleCell.o eval.o IntCell.o main.o parse.o SymbolCell.o \
+		ProcedureCell.o PrimitiveProcedureCell.o
 
 ${TARGET}: ${OBJS}
 	${CC} ${FLAGS} -o ${TARGET} $^
@@ -29,6 +30,12 @@ parse.o: parse.cpp parse.hpp cons.hpp Cell.hpp IntCell.hpp \
 
 SymbolCell.o: SymbolCell.cpp SymbolCell.hpp Cell.hpp
 	${CC} ${FLAGS} -c SymbolCell.cpp
+
+ProcedureCell.o: ProcedureCell.cpp ProcedureCell.hpp Cell.hpp
+	${CC} ${FLAGS} -c ProcedureCell.cpp
+
+PrimitiveProcedureCell.o: ProcedureCell.hpp PrimitiveProcedureCell.cpp PrimitiveProcedureCell.hpp Cell.hpp
+	${CC} ${FLAGS} -c PrimitiveProcedureCell.cpp
 
 doc:
 	doxygen doxygen.config

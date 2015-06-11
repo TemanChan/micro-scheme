@@ -1,6 +1,19 @@
 #include "ProcedureCell.hpp"
 using namespace std;
 
+ProcedureCell::ProcedureCell(Cell* formals, Cell* body):formals_m(formals), body_m(body)
+{
+
+}
+
+ProcedureCell::~ProcedureCell()
+{
+	if(formals_m != nil)
+		delete formals_m;
+	if(body_m != nil)
+		delete body_m;
+}
+
 bool ProcedureCell::is_int() const
 {
 	return false;
@@ -68,7 +81,7 @@ Cell* ProcedureCell::get_body() const
 
 void ProcedureCell::print(ostream& os) const
 {
-	os << "a procedure Cell";
+	os << "#<procedure>";
 }
 
 Cell* ProcedureCell::eval()
@@ -78,5 +91,35 @@ Cell* ProcedureCell::eval()
 
 Cell* ProcedureCell::apply(Cell* const args)
 {
-	
+	bool pushed = false;
+	if(formals_m->is_nil()){
+		if(!args->is_nil())
+			throw runtime_error("arguments number mismatch");
+	}
+	else{
+		map<string, Cell*> local_table;
+		Cell* form_cons = formals_m;
+		Cell* arg_cons = args;
+		while(!(form_cons->is_nil() || arg_cons->is_nil())){
+			local_table.insert(map<string, Cell*>::value_type(form_cons->get_car()->get_symbol(), arg_cons->get_car()->eval()));
+			form_cons = form_cons->get_cdr();
+			arg_cons = arg_cons->get_cdr();
+		}
+		if(form_cons->is_nil() && arg_cons->is_nil()){
+			symbol_table.push_front(local_table);
+			pushed = true;
+		}
+		else
+			throw runtime_error("arguments number mismatch");
+	}
+
+	Cell* body_cons = body_m;
+	while(!body_cons->get_cdr()->is_nil()){
+		body_cons->get_car()->eval();
+		body_cons = body_cons->get_cdr();
+	}
+	Cell* result = body_cons->get_car()->eval();
+	if(pushed)
+		symbol_table.pop_front();
+	return result;
 }
