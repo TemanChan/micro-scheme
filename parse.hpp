@@ -10,6 +10,7 @@
 #define PARSE_HPP
 
 #include "cons.hpp"
+#include <cstdlib>
 
 using namespace std;
 
