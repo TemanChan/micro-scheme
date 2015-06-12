@@ -20,8 +20,8 @@
  */
 
 
-#ifndef CELL_H
-#define CELL_H
+#ifndef CELL_HPP
+#define CELL_HPP
 
 #include <iostream>
 #include <string>
@@ -31,17 +31,18 @@
 #include <list>
 #include <iterator>
 #include <utility> // pair
+
 /**
  * @brief A abstract base class for cells
  */
 class Cell
 {
 public:
+	virtual ~Cell(){}
 	/**
 	 * @brief Check if this is an int cell.
 	 * @return True iff this is an int cell.
 	 */
-	virtual ~Cell(){}
 	virtual bool is_int() const = 0;
 	virtual bool is_double() const = 0;
 	virtual bool is_symbol() const = 0;
@@ -69,9 +70,8 @@ inline std::map<std::string, Cell*>::iterator search_table(std::string& s)
 	std::map<std::string, Cell*>::iterator j;
 	for(; i != symbol_table.end(); ++i){
 		j = i->find(s);
-		if(j != i->end()){
+		if(j != i->end())
 			return j;
-		}
 	}
 	return j;
 }

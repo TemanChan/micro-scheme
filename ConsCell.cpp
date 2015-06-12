@@ -13,8 +13,10 @@ ConsCell::ConsCell(Cell* car, Cell* cdr):car_m(car), cdr_m(cdr)
 
 ConsCell::~ConsCell()
 {
-	delete car_m;
-	delete cdr_m;
+	if(car_m != nil)
+		delete car_m;
+	if(cdr_m != nil)
+		delete cdr_m;
 }
 
 bool ConsCell::is_int() const

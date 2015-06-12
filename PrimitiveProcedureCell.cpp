@@ -263,8 +263,9 @@ Cell* PrimitiveProcedureCell::lambda(Cell* const args)
 		throw runtime_error("lambda operator requires two or more operands");
 	Cell* formals = args->get_car();
 	Cell* body = args->get_cdr();
-	if(formals->is_symbol())
-		throw runtime_error("variable number of arguments is not supported in the current version");
+	if(formals->is_symbol()){
+		//throw runtime_error("variable number of arguments is not supported in the current version");
+	}
 	else{
 		set<string> arg_set; // use to check duplicate argument name
 		string s;

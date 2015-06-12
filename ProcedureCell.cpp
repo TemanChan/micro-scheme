@@ -1,4 +1,6 @@
 #include "ProcedureCell.hpp"
+#include "ConsCell.hpp"
+#include <stack>
 using namespace std;
 
 ProcedureCell::ProcedureCell(Cell* formals, Cell* body):formals_m(formals), body_m(body)
@@ -91,13 +93,23 @@ Cell* ProcedureCell::eval()
 
 Cell* ProcedureCell::apply(Cell* const args)
 {
-	bool pushed = false;
-	if(formals_m->is_nil()){
-		if(!args->is_nil())
-			throw runtime_error("arguments number mismatch");
+	map<string, Cell*> local_table;
+	if(formals_m->is_symbol()){
+		stack<Cell*> arg_stack;
+		Cell* curr_cons = args;
+		while(!curr_cons->is_nil()){
+			arg_stack.push(curr_cons->get_car()->eval());
+			curr_cons = curr_cons->get_cdr();
+		}
+		
+		Cell* arguments = nil;
+		while(!arg_stack.empty()){
+			arguments = new ConsCell(arg_stack.top(), arguments);
+			arg_stack.pop();
+		}
+		local_table.insert(map<string, Cell*>::value_type(formals_m->get_symbol(), arguments));
 	}
 	else{
-		map<string, Cell*> local_table;
 		Cell* form_cons = formals_m;
 		Cell* arg_cons = args;
 		while(!(form_cons->is_nil() || arg_cons->is_nil())){
@@ -105,13 +117,12 @@ Cell* ProcedureCell::apply(Cell* const args)
 			form_cons = form_cons->get_cdr();
 			arg_cons = arg_cons->get_cdr();
 		}
-		if(form_cons->is_nil() && arg_cons->is_nil()){
-			symbol_table.push_front(local_table);
-			pushed = true;
-		}
-		else
+
+		if(!(form_cons->is_nil() && arg_cons->is_nil()))
 			throw runtime_error("arguments number mismatch");
 	}
+
+	symbol_table.push_front(local_table);
 
 	Cell* body_cons = body_m;
 	while(!body_cons->get_cdr()->is_nil()){
@@ -119,7 +130,6 @@ Cell* ProcedureCell::apply(Cell* const args)
 		body_cons = body_cons->get_cdr();
 	}
 	Cell* result = body_cons->get_car()->eval();
-	if(pushed)
-		symbol_table.pop_front();
+	symbol_table.pop_front();
 	return result;
 }

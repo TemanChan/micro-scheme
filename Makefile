@@ -40,6 +40,8 @@ PrimitiveProcedureCell.o: ProcedureCell.hpp PrimitiveProcedureCell.cpp Primitive
 doc:
 	doxygen doxygen.config
 
+test_all: test_sim test_g test_gen test_ari test_easy test_a4
+
 test_sim:
 	rm -f testoutput_simple.txt
 	./main testinput_simple.txt > testoutput_simple.txt
@@ -64,6 +66,11 @@ test_gen:
 	rm -f testoutput_gen.txt
 	./main testinput_gen.txt > testoutput_gen.txt
 	diff testref_gen.txt testoutput_gen.txt
+
+test_a4:
+	rm -f testoutput_a4.txt
+	./main testinput_a4.txt > testoutput_a4.txt
+	diff testref_a4.txt testoutput_a4.txt
 
 clean:
 	rm -f ${TARGET} ${OBJS} testoutput*.txt
