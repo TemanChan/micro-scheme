@@ -1,3 +1,5 @@
 testoutput_*
 *.o
-main
+main*
+!main.cpp
+
