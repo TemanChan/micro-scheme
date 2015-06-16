@@ -11,6 +11,11 @@ ConsCell::ConsCell(Cell* car, Cell* cdr):car_m(car), cdr_m(cdr)
 
 }
 
+Cell* ConsCell::clone() const
+{
+	return new ConsCell(car_m->clone(), cdr_m->clone());
+}
+
 ConsCell::~ConsCell()
 {
 	if(car_m != nil)
@@ -64,34 +69,42 @@ string ConsCell::get_symbol() const
 	throw runtime_error("try to access the symbol member of a non-symbol Cell");
 }
 
-Cell* ConsCell::get_car() const
+const Cell* ConsCell::get_car() const
 {
 	return car_m;
 }
 
-Cell* ConsCell::get_cdr() const
+const Cell* ConsCell::get_cdr() const
 {
 	return cdr_m;
 }
 
-Cell* ConsCell::get_formals() const
+const Cell* ConsCell::get_formals() const
 {
 	throw runtime_error("try to access the formals member of a non-procedure Cell");
 }
 
-Cell* ConsCell::get_body() const
+const Cell* ConsCell::get_body() const
 {
 	throw runtime_error("try to access the body member of a non-procedure Cell");
 }
 
-Cell* ConsCell::apply(Cell* const args)
+Cell* ConsCell::apply(const Cell* const args) const
 {
 	throw runtime_error("try to apply with a cons Cell");
 }
 
-Cell* ConsCell::eval()
+Cell* ConsCell::eval() const
 {
-	return get_car()->eval()->apply(get_cdr());
+	Cell* procedure = get_car()->eval();
+	try{
+		Cell* result = procedure->apply(get_cdr());
+		safe_delete(procedure);
+		return result;
+	}catch(...){
+		safe_delete(procedure);
+		throw;
+	}
 }
 
 void ConsCell::print(ostream& os) const

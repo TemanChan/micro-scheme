@@ -8,6 +8,11 @@ SymbolCell::SymbolCell(const string& s):symbol_m(s)
 
 }
 
+Cell* SymbolCell::clone() const
+{
+	return (this == nil) ? nil : new SymbolCell(symbol_m);
+}
+
 SymbolCell::~SymbolCell()
 {
 
@@ -60,40 +65,40 @@ std::string SymbolCell::get_symbol() const
 	return symbol_m;
 }
 
-Cell* SymbolCell::get_car() const
+const Cell* SymbolCell::get_car() const
 {
 	throw runtime_error("try to access the car member of a non-cons Cell");
 }
 
-Cell* SymbolCell::get_cdr() const
+const Cell* SymbolCell::get_cdr() const
 {
 	throw runtime_error("try to access the cdr member of a non-cons Cell");
 }
 
-Cell* SymbolCell::get_formals() const
+const Cell* SymbolCell::get_formals() const
 {
 	throw runtime_error("try to access the formals member of a non-procedure Cell");
 }
 
-Cell* SymbolCell::get_body() const
+const Cell* SymbolCell::get_body() const
 {
 	throw runtime_error("try to access the body member of a non-procedure Cell");
 }
 
-Cell* SymbolCell::apply(Cell* const args)
+Cell* SymbolCell::apply(const Cell* const args) const
 {
 	throw runtime_error("try to apply with a symbol Cell");
 }
 
-Cell* SymbolCell::eval()
+Cell* SymbolCell::eval() const
 {
 	if(this == nil)
 		throw runtime_error("empty list cannot be evaluated");
 	map<string, Cell*>::iterator it = search_table(symbol_m);
 	if(it == symbol_table.rbegin()->end())
-		throw runtime_error("attempt to evaluate un-definded symbol Cell " + symbol_m);
+		throw runtime_error("attempt to evaluate un-definded symbol Cell \"" + symbol_m + "\"");
 	else
-		return it->second;
+		return it->second->clone();
 }
 
 void SymbolCell::print(std::ostream& os) const

@@ -9,36 +9,37 @@
 class PrimitiveProcedureCell:public ProcedureCell
 {
 public:
-	PrimitiveProcedureCell(Cell* (*func)(Cell* const));
+	PrimitiveProcedureCell(Cell* (*func)(const Cell* const));
+	virtual Cell* clone() const;
 	virtual ~PrimitiveProcedureCell();
-	virtual Cell* apply(Cell* const args);
+	virtual Cell* apply(const Cell* const args) const;
 	virtual void print(std::ostream& os = std::cout) const;
-	static Cell* add(Cell* const args);
-	static Cell* subtract(Cell* const args);
-	static Cell* multiply(Cell* const args);
-	static Cell* divide(Cell* const args);
-	static Cell* less_than(Cell* const args);
-	static Cell* ceiling(Cell* const args);
-	static Cell* pri_floor(Cell* const args);
-	static Cell* ifelse(Cell* const args);
-	static Cell* quote(Cell* const args);
-	static Cell* cons(Cell* const args);
-	static Cell* car(Cell* const args);
-	static Cell* cdr(Cell* const args);
-	static Cell* nullp(Cell* const args);
-	static Cell* pri_not(Cell* const args);
-	static Cell* define(Cell* const args);
-	static Cell* pri_print(Cell* const args);
-	static Cell* pri_eval(Cell* const args);
-	static Cell* lambda(Cell* const args);
-	static Cell* pri_apply(Cell* const args);
-	static Cell* let(Cell* const args);
+	static Cell* add(const Cell* const args);
+	static Cell* subtract(const Cell* const args);
+	static Cell* multiply(const Cell* const args);
+	static Cell* divide(const Cell* const args);
+	static Cell* less_than(const Cell* const args);
+	static Cell* ceiling(const Cell* const args);
+	static Cell* pri_floor(const Cell* const args);
+	static Cell* ifelse(const Cell* const args);
+	static Cell* quote(const Cell* const args);
+	static Cell* cons(const Cell* const args);
+	static Cell* car(const Cell* const args);
+	static Cell* cdr(const Cell* const args);
+	static Cell* nullp(const Cell* const args);
+	static Cell* pri_not(const Cell* const args);
+	static Cell* define(const Cell* const args);
+	static Cell* pri_print(const Cell* const args);
+	static Cell* pri_eval(const Cell* const args);
+	static Cell* lambda(const Cell* const args);
+	static Cell* pri_apply(const Cell* const args);
+	static Cell* let(const Cell* const args);
 	static std::map<std::string, Cell*> create_map();
 
 private:
 	template <typename IntOp, typename DoubleOp>
-	static Cell* arithmetic_operation(Cell* const operands, IntOp int_op, DoubleOp double_op, const std::string& op);
-	Cell* (*func_m)(Cell* const);
+	static Cell* arithmetic_operation(const Cell* const operands, IntOp int_op, DoubleOp double_op, const std::string& op);
+	Cell* (*func_m)(const Cell* const);
 };
 
 #endif

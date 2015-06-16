@@ -40,6 +40,11 @@ class Cell
 public:
 	virtual ~Cell(){}
 	/**
+	 * @brief A virtual copy constructor
+	 * @return A pointer points to the clone
+	 */
+	virtual Cell* clone() const = 0;
+	/**
 	 * @brief Check if this is an int cell.
 	 * @return True iff this is an int cell.
 	 */
@@ -52,19 +57,19 @@ public:
 	virtual int get_int() const = 0;
 	virtual double get_double() const = 0;
 	virtual std::string get_symbol() const = 0;
-	virtual Cell* get_car() const = 0;
-	virtual Cell* get_cdr() const = 0;
-	virtual Cell* get_formals() const = 0;
-	virtual Cell* get_body() const = 0;
+	virtual const Cell* get_car() const = 0;
+	virtual const Cell* get_cdr() const = 0;
+	virtual const Cell* get_formals() const = 0;
+	virtual const Cell* get_body() const = 0;
 	virtual void print(std::ostream& os = std::cout) const = 0;
-	virtual Cell* eval() = 0;
-	virtual Cell* apply(Cell* const args) = 0;
+	virtual Cell* eval() const = 0;
+	virtual Cell* apply(const Cell* const args) const = 0;
 };
 
 extern Cell* const nil;
 extern std::list<std::map<std::string, Cell*> > symbol_table;
 
-inline std::map<std::string, Cell*>::iterator search_table(std::string& s)
+inline std::map<std::string, Cell*>::iterator search_table(const std::string& s)
 {
 	std::list<std::map<std::string, Cell*> >::iterator i = symbol_table.begin();
 	std::map<std::string, Cell*>::iterator j;
@@ -74,6 +79,27 @@ inline std::map<std::string, Cell*>::iterator search_table(std::string& s)
 			return j;
 	}
 	return j;
+}
+
+inline void safe_delete(Cell*& c)
+{
+	if(c != nil){
+		delete c;
+		c = nil;
+	}
+}
+
+/**
+ * @brief Destory the cells in the symbol table and the nil cell before the program terminates
+ */
+inline void free_mem_before_exit()
+{
+	std::list<std::map<std::string, Cell*> >::iterator i = symbol_table.begin();
+	std::map<std::string, Cell*>::iterator j;
+	for(; i != symbol_table.end(); ++i)
+		for(j = i->begin(); j != i->end(); ++j)
+			delete j->second;
+	delete nil;
 }
 
 #endif

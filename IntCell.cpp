@@ -7,6 +7,11 @@ IntCell::IntCell(int i):int_m(i)
 
 }
 
+Cell* IntCell::clone() const
+{
+	return new IntCell(int_m);
+}
+
 IntCell::~IntCell()
 {
 
@@ -57,34 +62,34 @@ std::string IntCell::get_symbol() const
 	throw runtime_error("try to access the symbol member of a non-symbol Cell");
 }
 
-Cell* IntCell::get_car() const
+const Cell* IntCell::get_car() const
 {
 	throw runtime_error("try to access the car member of a non-cons Cell");
 }
 
-Cell* IntCell::get_cdr() const
+const Cell* IntCell::get_cdr() const
 {
 	throw runtime_error("try to access the cdr member of a non-cons Cell");
 }
 
-Cell* IntCell::get_formals() const
+const Cell* IntCell::get_formals() const
 {
 	throw runtime_error("try to access the formals member of a non-procedure Cell");
 }
 
-Cell* IntCell::get_body() const
+const Cell* IntCell::get_body() const
 {
 	throw runtime_error("try to access the body member of a non-procedure Cell");
 }
 
-Cell* IntCell::apply(Cell* const args)
+Cell* IntCell::apply(const Cell* const args) const
 {
 	throw runtime_error("try to apply with an int Cell");
 }
 
-Cell* IntCell::eval()
+Cell* IntCell::eval() const
 {
-	return this;
+	return clone();
 }
 
 void IntCell::print(ostream& os) const

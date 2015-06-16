@@ -11,10 +11,15 @@ using namespace std;
 list<map<string, Cell*> > symbol_table(1, PrimitiveProcedureCell::create_map());
 
 
-PrimitiveProcedureCell::PrimitiveProcedureCell(Cell* (*func)(Cell* const))
-	:ProcedureCell(nil, nil), func_m(func)
+PrimitiveProcedureCell::PrimitiveProcedureCell(Cell* (*func)(const Cell* const))
+:ProcedureCell(nil, nil), func_m(func)
 {
 
+}
+
+Cell* PrimitiveProcedureCell::clone() const
+{
+	return new PrimitiveProcedureCell(func_m);
 }
 
 PrimitiveProcedureCell::~PrimitiveProcedureCell()
@@ -22,7 +27,7 @@ PrimitiveProcedureCell::~PrimitiveProcedureCell()
 
 }
 
-Cell* PrimitiveProcedureCell::apply(Cell* const args)
+Cell* PrimitiveProcedureCell::apply(const Cell* const args) const
 {
 	return func_m(args);
 }
@@ -32,7 +37,7 @@ void PrimitiveProcedureCell::print(ostream& os) const
 	os << "#<primitive>";
 }
 
-Cell* PrimitiveProcedureCell::add(Cell* const args)
+Cell* PrimitiveProcedureCell::add(const Cell* const args)
 {
 	if(args->is_nil())
 		return new IntCell(0);
@@ -40,24 +45,32 @@ Cell* PrimitiveProcedureCell::add(Cell* const args)
 		return arithmetic_operation(args, plus<int>(), plus<double>(), "+");
 }
 
-Cell* PrimitiveProcedureCell::subtract(Cell* const args)
+Cell* PrimitiveProcedureCell::subtract(const Cell* const args)
 {
 	if(args->is_nil())
 		throw runtime_error("- operator requires at least one operand");
 	else if(args->get_cdr()->is_nil()){
 		Cell* operand = args->get_car()->eval();
-		if(operand->is_int())
-			return new IntCell(0 - operand->get_int());
-		else if(operand->is_double())
-			return new DoubleCell(0 - operand->get_double());
-		else
-			throw runtime_error("operant for - is neither an int nor a double");
+		try{
+			Cell* result = nil;
+			if(operand->is_int())
+				result = new IntCell(0 - operand->get_int());
+			else if(operand->is_double())
+				result = new DoubleCell(0 - operand->get_double());
+			else
+				throw runtime_error("operant for - is neither an int nor a double");
+			safe_delete(operand);
+			return result;
+		}catch(...){
+			safe_delete(operand);
+			throw;
+		}
 	}
 	else
 		return arithmetic_operation(args, minus<int>(), minus<double>(), "-");
 }
 
-Cell* PrimitiveProcedureCell::multiply(Cell* const args)
+Cell* PrimitiveProcedureCell::multiply(const Cell* const args)
 {
 	if(args->is_nil())
 		return new IntCell(1);
@@ -65,95 +78,117 @@ Cell* PrimitiveProcedureCell::multiply(Cell* const args)
 		return arithmetic_operation(args, multiplies<int>(), multiplies<double>(), "*");
 }
 
-Cell* PrimitiveProcedureCell::divide(Cell* const args)
+Cell* PrimitiveProcedureCell::divide(const Cell* const args)
 {
 	if(args->is_nil())
 		throw runtime_error("/ operator requires at least one operand");
 	else if(args->get_cdr()->is_nil()){
 		Cell* operand = args->get_car()->eval();
-		if(operand->is_int())
-			return new IntCell(1 / operand->get_int());
-		else if(operand->is_double())
-			return new DoubleCell(1.0 / operand->get_double());
-		else
-			throw runtime_error("operant for / is neither an int nor a double");
+		try{
+			Cell* result = nil;
+			if(operand->is_int())
+				result = new IntCell(1 / operand->get_int());
+			else if(operand->is_double())
+				result = new DoubleCell(1.0 / operand->get_double());
+			else
+				throw runtime_error("operant for / is neither an int nor a double");
+			safe_delete(operand);
+			return result;
+		}catch(...){
+			safe_delete(operand);
+			throw;
+		}
 	}
 	else
 		return arithmetic_operation(args, divides<int>(), divides<double>(), "/");
 }
 
-Cell* PrimitiveProcedureCell::less_than(Cell* const args)
+Cell* PrimitiveProcedureCell::less_than(const Cell* const args)
 {
 	if(args->is_nil())
 		return new IntCell(1);
 	int is_increasing = 1;
 	double prev, curr;
-	Cell* curr_cons = args;
+	const Cell* curr_cons = args;
 	Cell* curr_car = curr_cons->get_car()->eval();
-	if(curr_car->is_int())
-		prev = curr_car->get_int();
-	else
-		prev = curr_car->get_double();
-	curr_cons = curr_cons->get_cdr();
-	while(!(curr_cons->is_nil())){
-		curr_car = curr_cons->get_car()->eval();
+	try{
 		if(curr_car->is_int())
-			curr = curr_car->get_int();
+			prev = curr_car->get_int();
 		else
-			curr = curr_car->get_double();
-		if(prev >= curr){
-			is_increasing = 0;
-			// check whether the remaining operands are valid or not;
-			curr_cons = curr_cons->get_cdr();
-			while(!curr_cons->is_nil()){
-				curr_car = curr_cons->get_car()->eval();
-				if(!(curr_car->is_int() || curr_car->is_double()))
-					throw runtime_error("try to use < operator with a Cell that cannot do");
-				curr_cons = curr_cons->get_cdr();
-			}
-			break;
-		}
-		prev = curr;
+			prev = curr_car->get_double();
+		safe_delete(curr_car);
 		curr_cons = curr_cons->get_cdr();
+		while(!curr_cons->is_nil()){
+			curr_car = curr_cons->get_car()->eval();
+			if(curr_car->is_int())
+				curr = curr_car->get_int();
+			else
+				curr = curr_car->get_double();
+			safe_delete(curr_car);
+			if(prev >= curr){
+				is_increasing = 0;
+				// check whether the remaining operands are valid or not;
+				curr_cons = curr_cons->get_cdr();
+				while(!curr_cons->is_nil()){
+					curr_car = curr_cons->get_car()->eval();
+					if(!(curr_car->is_int() || curr_car->is_double()))
+						throw runtime_error("try to use < operator with a Cell that cannot do");
+					safe_delete(curr_car);
+					curr_cons = curr_cons->get_cdr();
+				}
+				break;
+			}
+			prev = curr;
+			curr_cons = curr_cons->get_cdr();
+		}
+		return new IntCell(is_increasing);
+	}catch(...){
+		safe_delete(curr_car);
+		throw;
 	}
-	return new IntCell(is_increasing);
 }
 
-Cell* PrimitiveProcedureCell::ceiling(Cell* const args)
+Cell* PrimitiveProcedureCell::ceiling(const Cell* const args)
 {
 	if(args->is_nil() || !(args->get_cdr()->is_nil()))
 		throw runtime_error("ceiling operator requires exactly one double operand");
 	Cell* operand = args->get_car()->eval();
 	if(operand->is_double()){
 		double d = operand->get_double();
+		delete operand;
 		int i = static_cast<int>(d);
 		if(d > 0 && d > i)
 			++i;
 		return new IntCell(i);
 	}
-	else
+	else{
+		safe_delete(operand);
 		throw runtime_error("try to use ceiling operator with non-double Cell");
+	}
 }
 
-Cell* PrimitiveProcedureCell::pri_floor(Cell* const args)
+Cell* PrimitiveProcedureCell::pri_floor(const Cell* const args)
 {
 	if(args->is_nil() || !(args->get_cdr()->is_nil()))
 		throw runtime_error("floor operator requires exactly one double operand");
 	Cell* operand = args->get_car()->eval();
 	if(operand->is_double()){
 		double d = operand->get_double();
+		delete operand;
 		int i = static_cast<int>(d);
 		if(d < 0 && d < i)
 			--i;
 		return new IntCell(i);
 	}
-	else
+	else{
+		safe_delete(operand);
 		throw runtime_error("try to use floor operator with non-double Cell");
+	}
 }
 
-Cell* PrimitiveProcedureCell::ifelse(Cell* const args)
+Cell* PrimitiveProcedureCell::ifelse(const Cell* const args)
 {
-	Cell* curr_cons = args;
+	const Cell* curr_cons = args;
 	if(curr_cons->is_nil() || curr_cons->get_cdr()->is_nil() 
 	   || !(curr_cons->get_cdr()->get_cdr()->is_nil() 
 			|| curr_cons->get_cdr()->get_cdr()->get_cdr()->is_nil()))
@@ -161,77 +196,103 @@ Cell* PrimitiveProcedureCell::ifelse(Cell* const args)
 	Cell* condition_cell = curr_cons->get_car()->eval();
 	if(condition_cell->is_int() && condition_cell->get_int() == 0
 	   || condition_cell->is_double() && condition_cell->get_double() == 0){
-
-		Cell* false_cell = curr_cons->get_cdr()->get_cdr();
+		safe_delete(condition_cell);
+		const Cell* false_cell = curr_cons->get_cdr()->get_cdr();
 		if(false_cell->is_nil())
 			return nil;
 		else
 			return false_cell->get_car()->eval();
 	}
-	else
+	else{
+		safe_delete(condition_cell);
 		return curr_cons->get_cdr()->get_car()->eval();
+	}
 }
 
-Cell* PrimitiveProcedureCell::quote(Cell* const args)
+Cell* PrimitiveProcedureCell::quote(const Cell* const args)
 {
 	if(args->is_nil() || !(args->get_cdr()->is_nil()))
 		throw runtime_error("quote operator requires exactly one operand");
-	return args->get_car();
+	return args->get_car()->clone();
 }
 
-Cell* PrimitiveProcedureCell::cons(Cell* const args)
+Cell* PrimitiveProcedureCell::cons(const Cell* const args)
 {
-	if(args->is_nil() || !(args->get_cdr()->is_nil() || args->get_cdr()->get_cdr()->is_nil()))
+	if(args->is_nil() || args->get_cdr()->is_nil() || !args->get_cdr()->get_cdr()->is_nil())
 		throw runtime_error("cons operator requires exactly two operands");
-	Cell* car = args->get_car()->eval();
-	Cell* cdr = args->get_cdr()->get_car()->eval();
-	return new ConsCell(car, cdr);
+	Cell *car = nil, *cdr = nil;
+	try{
+		car = args->get_car()->eval();
+		cdr = args->get_cdr()->get_car()->eval();
+		if(!(cdr->is_nil() || cdr->is_cons()))
+			throw runtime_error("the cdr of a cons must be list");
+		return new ConsCell(car, cdr);
+	}catch(...){
+		safe_delete(car);
+		safe_delete(cdr);
+		throw;
+	}
 }
 
-Cell* PrimitiveProcedureCell::car(Cell* const args)
+Cell* PrimitiveProcedureCell::car(const Cell* const args)
 {
 	if(args->is_nil() || !(args->get_cdr()->is_nil()))
 		throw runtime_error("car operator requires exactly one operand");
 	Cell* operand = args->get_car()->eval();
-	if(operand->is_cons())
-		return operand->get_car();
-	else
-		throw runtime_error("car operator requires exactly one list operand");
+	if(operand->is_cons()){
+		Cell* result = operand->get_car()->clone();
+		safe_delete(operand);
+		return result;
+	}
+	else{
+		safe_delete(operand);
+		throw runtime_error("cdr operator requires exactly one list operand");
+	}
 }
 
-Cell* PrimitiveProcedureCell::cdr(Cell* const args)
+Cell* PrimitiveProcedureCell::cdr(const Cell* const args)
 {
 	if(args->is_nil() || !(args->get_cdr()->is_nil()))
 		throw runtime_error("cdr operator requires exactly one operand");
 	Cell* operand = args->get_car()->eval();
-	if(operand->is_cons())
-		return operand->get_cdr();
-	else
+	if(operand->is_cons()){
+		Cell* result = operand->get_cdr()->clone();
+		safe_delete(operand);
+		return result;
+	}
+	else{
+		safe_delete(operand);
 		throw runtime_error("cdr operator requires exactly one list operand");
+	}
 }
 
-Cell* PrimitiveProcedureCell::nullp(Cell* const args)
+Cell* PrimitiveProcedureCell::nullp(const Cell* const args)
 {
 	if(args->is_nil() || !(args->get_cdr()->is_nil()))
 		throw runtime_error("nullp operator requires exactly one operand");
 	Cell* operand = args->get_car()->eval();
-	return new IntCell(operand->is_nil());
+	Cell* result = new IntCell(operand->is_nil());
+	safe_delete(operand);
+	return result;
 }
 
-Cell* PrimitiveProcedureCell::pri_not(Cell* const args)
+Cell* PrimitiveProcedureCell::pri_not(const Cell* const args)
 {
 	if(args->is_nil() || !(args->get_cdr()->is_nil()))
 		throw runtime_error("not operator requires exactly one operand");
 	Cell* operand = args->get_car()->eval();
+	Cell* result = nil;
 	if(operand->is_int() && operand->get_int() == 0 || operand->is_double() && operand->get_double() == 0)
-		return new IntCell(1);
+		result = new IntCell(1);
 	else
-		return new IntCell(0);
+		result = new IntCell(0);
+	safe_delete(operand);
+	return result;
 }
 
-Cell* PrimitiveProcedureCell::define(Cell* const args)
+Cell* PrimitiveProcedureCell::define(const Cell* const args)
 {
-	if(args->is_nil() || !(args->get_cdr()->is_nil() || args->get_cdr()->get_cdr()->is_nil()))
+	if(args->is_nil() || args->get_cdr()->is_nil() || !args->get_cdr()->get_cdr()->is_nil())
 		throw runtime_error("define operator requires exactly two operands");
 	string s = args->get_car()->get_symbol();
 	if(symbol_table.begin()->find(s) != symbol_table.begin()->end())
@@ -241,120 +302,185 @@ Cell* PrimitiveProcedureCell::define(Cell* const args)
 	return nil;
 }
 
-Cell* PrimitiveProcedureCell::pri_print(Cell* const args)
+Cell* PrimitiveProcedureCell::pri_print(const Cell* const args)
 {
 	if(args->is_nil() || !(args->get_cdr()->is_nil()))
 		throw runtime_error("print operator requires exactly one operand");
-	args->get_car()->eval()->print();
-	cout << endl;
-	return nil;
+	Cell* operand = args->get_car()->eval();
+	try{
+		operand->print();
+		cout << endl;
+		safe_delete(operand);
+		return nil;
+	}catch(...){
+		safe_delete(operand);
+		throw;
+	}
 }
 
-Cell* PrimitiveProcedureCell::pri_eval(Cell* const args)
+Cell* PrimitiveProcedureCell::pri_eval(const Cell* const args)
 {
 	if(args->is_nil() || !(args->get_cdr()->is_nil()))
 		throw runtime_error("eval operator requires exactly one operand");
-	return args->get_car()->eval()->eval();
+	Cell* operand = args->get_car()->eval();
+	try{
+		Cell* result = operand->eval();
+		safe_delete(operand);
+		return result;
+	}catch(...){
+		safe_delete(operand);
+		throw;
+	}
 }
 
-Cell* PrimitiveProcedureCell::lambda(Cell* const args)
+Cell* PrimitiveProcedureCell::lambda(const Cell* const args)
 {
 	if(args->is_nil() || args->get_cdr()->is_nil())
 		throw runtime_error("lambda operator requires two or more operands");
-	Cell* formals = args->get_car();
-	Cell* body = args->get_cdr();
-	if(formals->is_symbol()){
-		//throw runtime_error("variable number of arguments is not supported in the current version");
-	}
-	else{
-		set<string> arg_set; // use to check duplicate argument name
-		string s;
-		Cell* curr_cons = formals;
-		while(!curr_cons->is_nil()){
-			try{
-				s = curr_cons->get_car()->get_symbol();
-			}catch(const runtime_error& e){
-				throw runtime_error("the arguments list contains invalid identifier(s)");
-			}
-			if(arg_set.insert(s).second == false)
-				throw runtime_error("duplicate argument name: " + s);
-			curr_cons = curr_cons->get_cdr();
+	Cell* formals = args->get_car()->clone();
+	Cell* body = args->get_cdr()->clone();
+	try{
+		if(formals->is_symbol()){
+			//throw runtime_error("variable number of arguments is not supported in the current version");
 		}
+		else{
+			set<string> arg_set; // use to check duplicate argument name
+			string s;
+			const Cell* curr_cons = formals;
+			while(!curr_cons->is_nil()){
+				try{
+					s = curr_cons->get_car()->get_symbol();
+				}catch(runtime_error){
+					throw runtime_error("the arguments list contains invalid identifier(s)");
+				}
+				if(arg_set.insert(s).second == false)
+					throw runtime_error("duplicate argument name: \"" + s + "\"");
+				curr_cons = curr_cons->get_cdr();
+			}
+		}
+		return new ProcedureCell(formals, body);
+	}catch(...){
+		safe_delete(formals);
+		safe_delete(body);
+		throw;
 	}
-	return new ProcedureCell(formals, body);
 }
 
-Cell* PrimitiveProcedureCell::pri_apply(Cell* const args)
+Cell* PrimitiveProcedureCell::pri_apply(const Cell* const args)
 {
-	if(args->is_nil() || !(args->get_cdr()->is_nil() || args->get_cdr()->get_cdr()->is_nil()))
+	if(args->is_nil() || args->get_cdr()->is_nil() || !args->get_cdr()->get_cdr()->is_nil())
 		throw runtime_error("apply operator requires exactly two operands");
-	Cell* procedure = args->get_car()->eval();
-	Cell* arguments = args->get_cdr()->get_car()->eval();
-	return procedure->apply(arguments);
+	Cell *procedure = nil, *arguments = nil, *result = nil;
+	try{
+		procedure = args->get_car()->eval();
+		arguments = args->get_cdr()->get_car()->eval();
+		result = procedure->apply(arguments);
+		safe_delete(procedure);
+		safe_delete(arguments);
+		return result;
+	}catch(...){
+		safe_delete(procedure);
+		safe_delete(arguments);
+		throw;
+	}
 }
 
-Cell* PrimitiveProcedureCell::let(Cell* const args)
+Cell* PrimitiveProcedureCell::let(const Cell* const args)
 {
 	if(args->is_nil() || args->get_cdr()->is_nil())
 		throw runtime_error("let operator requires two or more operands");
-	Cell *formals = nil, *arguments = nil, *body = args->get_cdr(),
-		*curr_cons = args->get_car(), *curr_pair;
+	Cell *formals = nil, *arguments = nil, *body = args->get_cdr()->clone();
+	const Cell *curr_cons = args->get_car(), *curr_pair;
 	set<string> arg_set;
 	string s;
-	while(!curr_cons->is_nil()){
-		curr_pair = curr_cons->get_car();
-		if(curr_pair->is_nil() || curr_pair->get_cdr()->is_nil() || !(curr_pair->get_cdr()->get_cdr()->is_nil()))
-			throw runtime_error("bad syntax");
-		s = curr_pair->get_car()->get_symbol();
-		if(arg_set.insert(s).second == false)
-			throw runtime_error("duplicate argument name: " + s);
-		formals = new ConsCell(new SymbolCell(s), formals);
-		arguments = new ConsCell(curr_pair->get_cdr()->get_car(), arguments);
-		curr_cons = curr_cons->get_cdr();
+	try{
+		while(!curr_cons->is_nil()){
+			curr_pair = curr_cons->get_car();
+			if(curr_pair->is_nil() || curr_pair->get_cdr()->is_nil() || !(curr_pair->get_cdr()->get_cdr()->is_nil()))
+				throw runtime_error("bad syntax");
+			s = curr_pair->get_car()->get_symbol();
+			if(arg_set.insert(s).second == false)
+				throw runtime_error("duplicate argument name: \"" + s + "\"");
+			formals = new ConsCell(new SymbolCell(s), formals);
+			arguments = new ConsCell(curr_pair->get_cdr()->get_car()->clone(), arguments);
+			curr_cons = curr_cons->get_cdr();
+		}
 	}
-	return ProcedureCell(formals, body).apply(arguments);
+	catch(...){
+		safe_delete(formals);
+		safe_delete(body);
+		safe_delete(arguments);
+		throw;
+	}
+
+	try{
+		ProcedureCell temp(formals, body);
+		Cell* result = temp.apply(arguments);
+		safe_delete(arguments);
+		return result;
+	}catch(...){
+		safe_delete(arguments);
+		throw;
+	}
 }
 
 template <typename IntOp, typename DoubleOp>
-Cell* PrimitiveProcedureCell::arithmetic_operation(Cell* const operands, IntOp int_op, DoubleOp double_op, const std::string& op)
+Cell* PrimitiveProcedureCell::arithmetic_operation(const Cell* const operands, IntOp int_op, DoubleOp double_op, const std::string& op)
 {
 	int int_result = 0;
 	double double_result = 0;
 	Cell* curr_operand = operands->get_car()->eval();
-	Cell* curr_cons = operands->get_cdr();
+	const Cell* curr_cons = operands->get_cdr();
 	if(curr_operand->is_int()){
 		int_result = curr_operand->get_int();
-		while(!(curr_cons->is_nil())){
+		safe_delete(curr_operand);
+		while(!curr_cons->is_nil()){
 			curr_operand = curr_cons->get_car()->eval();
 			curr_cons = curr_cons->get_cdr();
-			if(curr_operand->is_int())
+			if(curr_operand->is_int()){
 				int_result = int_op(int_result, curr_operand->get_int());
+				safe_delete(curr_operand);
+			}
 			else if(curr_operand->is_double()){
 				double_result = double_op(int_result, curr_operand->get_double());
-				if(curr_cons->is_nil())
+				safe_delete(curr_operand);
+				if(curr_cons->is_nil()){
 					return new DoubleCell(double_result);
+				}
 				break;
 			}
-			else
+			else{
+				safe_delete(curr_operand);
 				throw runtime_error("operant for " + op + " is neither an int nor a double");
+			}
 		}
 		if(curr_cons->is_nil())
 			return new IntCell(int_result);
 	}
-	else if(curr_operand->is_double())
+	else if(curr_operand->is_double()){
 		double_result = curr_operand->get_double();
-	else
+		safe_delete(curr_operand);
+	}
+	else{
+		safe_delete(curr_operand);
 		throw runtime_error("operant for " + op + " is neither an int nor a double");
+	}
 
 	while(!(curr_cons->is_nil())){
 		curr_operand = curr_cons->get_car()->eval();
-		curr_cons = curr_cons->get_cdr();
-		if(curr_operand->is_int())
-			double_result = double_op(double_result, curr_operand->get_int());
-		else if(curr_operand->is_double())
-			double_result = double_op(double_result, curr_operand->get_double());
-		else
-			throw runtime_error("operant for " + op + " is neither an int nor a double");
+		try{
+			curr_cons = curr_cons->get_cdr();
+			if(curr_operand->is_int())
+				double_result = double_op(double_result, curr_operand->get_int());
+			else if(curr_operand->is_double())
+				double_result = double_op(double_result, curr_operand->get_double());
+			else
+				throw runtime_error("operant for " + op + " is neither an int nor a double");
+			safe_delete(curr_operand);
+		}catch(...){
+			safe_delete(curr_operand);
+			throw;
+		}
 	}
 	return new DoubleCell(double_result);
 }

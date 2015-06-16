@@ -94,7 +94,7 @@ inline bool listp(Cell* const c)
  */
 inline bool procedurep(Cell* const c)
 {
-	return !nullp(c) && c->is_procedure();
+	return c->is_procedure();
 }
 
 /**
@@ -103,7 +103,7 @@ inline bool procedurep(Cell* const c)
  */
 inline bool intp(Cell* const c)
 {
-	return !nullp(c) && c->is_int();
+	return c->is_int();
 }
 
 /**
@@ -112,7 +112,7 @@ inline bool intp(Cell* const c)
  */
 inline bool doublep(Cell* const c)
 {
-	return !nullp(c) && c->is_double();
+	return c->is_double();
 }
 
 /**
@@ -121,7 +121,7 @@ inline bool doublep(Cell* const c)
  */
 inline bool symbolp(Cell* const c)
 {
-	return !nullp(c) && c->is_symbol();
+	return c->is_symbol();
 }
 
 /**
@@ -158,7 +158,7 @@ inline std::string get_symbol(Cell* const c)
  */
 inline Cell* car(Cell* const c)
 {
-	return c->get_car();
+	return c->get_car()->clone();
 }
 
 /**
@@ -167,7 +167,7 @@ inline Cell* car(Cell* const c)
  */
 inline Cell* cdr(Cell* const c)
 {
-	return c->get_cdr();
+	return c->get_cdr()->clone();
 }
 
 /**
@@ -177,7 +177,7 @@ inline Cell* cdr(Cell* const c)
  */
 inline Cell* get_formals(Cell* const c)
 {
-	return c->get_formals();
+	return c->get_formals()->clone();
 }
 
 /**
@@ -187,7 +187,7 @@ inline Cell* get_formals(Cell* const c)
  */
 inline Cell* get_body(Cell* const c)
 {
-	return c->get_body();
+	return c->get_body()->clone();
 }
 
 /**
