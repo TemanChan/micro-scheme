@@ -10,6 +10,7 @@
 #include <stdexcept>
 #include "parse.hpp"
 #include "eval.hpp"
+#include "Cell.hpp" // safe_delete, nil
 #include <sstream>
 #include <fstream>
 
@@ -21,9 +22,11 @@ using namespace std;
  */
 void parse_eval_print(string sexpr)
 {
+	Cell* root = nil;
+	Cell* result = nil;
 	try {
-		Cell* root = parse(sexpr);
-		Cell* result = eval(root);
+		root = parse(sexpr);
+		result = eval(root);
 		if ( result == NULL ) {
 			cout << "()" << endl;
 		} else {
@@ -31,9 +34,15 @@ void parse_eval_print(string sexpr)
 		}
 		// delete root;
 		// delete result;
+		safe_delete(root);
+		safe_delete(result);
 	} catch (runtime_error &e) {
+		safe_delete(root);
+		safe_delete(result);
 		cerr << "ERROR: " << e.what() << endl;
 	} catch (logic_error &e) {
+		safe_delete(root);
+		safe_delete(result);
 		cerr << "LOGIC ERROR: " << e.what() << endl;
 		exit(1);
 	}
@@ -183,7 +192,6 @@ int main(int argc, char* argv[])
 	case 1:
 		// read from the standard input
 		readconsole();
-		exit(0);
 		break;
 	case 2:
 		// read from a file
@@ -191,7 +199,7 @@ int main(int argc, char* argv[])
 		break;
 	default:
 		cout << "too many arguments!" << endl;
-		exit(0);
 	}
+	free_mem_before_exit();
 	return 0;
 }
