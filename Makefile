@@ -1,5 +1,5 @@
 CC = g++
-#FLAGS = -std=c++11
+FLAGS = -std=c++11
 TARGET = main
 OBJS = ConsCell.o DoubleCell.o eval.o IntCell.o main.o parse.o SymbolCell.o \
 		ProcedureCell.o PrimitiveProcedureCell.o

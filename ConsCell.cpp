@@ -6,17 +6,14 @@
 #include "PrimitiveProcedureCell.hpp"
 using namespace std;
 
-ConsCell::ConsCell(Cell* car, Cell* cdr):car_m(car), cdr_m(cdr)
+ConsCell::ConsCell(CellPtr car, CellPtr cdr):car_m(car), cdr_m(cdr)
 {
 
 }
 
 ConsCell::~ConsCell()
 {
-	if(car_m != nil)
-		delete car_m;
-	if(cdr_m != nil)
-		delete cdr_m;
+
 }
 
 bool ConsCell::is_int() const
@@ -64,32 +61,32 @@ string ConsCell::get_symbol() const
 	throw runtime_error("try to access the symbol member of a non-symbol Cell");
 }
 
-Cell* ConsCell::get_car() const
+CellPtr ConsCell::get_car() const
 {
 	return car_m;
 }
 
-Cell* ConsCell::get_cdr() const
+CellPtr ConsCell::get_cdr() const
 {
 	return cdr_m;
 }
 
-Cell* ConsCell::get_formals() const
+CellPtr ConsCell::get_formals() const
 {
 	throw runtime_error("try to access the formals member of a non-procedure Cell");
 }
 
-Cell* ConsCell::get_body() const
+CellPtr ConsCell::get_body() const
 {
 	throw runtime_error("try to access the body member of a non-procedure Cell");
 }
 
-Cell* ConsCell::apply(Cell* const args)
+CellPtr ConsCell::apply(CellPtr const args)
 {
 	throw runtime_error("try to apply with a cons Cell");
 }
 
-Cell* ConsCell::eval()
+CellPtr ConsCell::eval()
 {
 	return get_car()->eval()->apply(get_cdr());
 }
@@ -97,7 +94,7 @@ Cell* ConsCell::eval()
 void ConsCell::print(ostream& os) const
 {
 	os << "(";
-	const Cell* current_cell = this;
+	shared_ptr<const Cell> current_cell = shared_from_this();
 	while(true){
 		current_cell->get_car()->print(os);
 		if(current_cell->get_cdr()->is_nil())

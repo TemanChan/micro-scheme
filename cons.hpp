@@ -57,7 +57,9 @@ inline Cell* make_symbol(const char* const s)
  */
 inline Cell* cons(Cell* const my_car, Cell* const my_cdr)
 {
-	return new ConsCell(my_car, my_cdr);
+	CellPtr car = (my_car == nil) ? smart_nil : CellPtr(my_car);
+	CellPtr cdr = (my_cdr == nil) ? smart_nil : CellPtr(my_cdr);
+	return new ConsCell(car, cdr);
 }
 
 /**
@@ -67,7 +69,9 @@ inline Cell* cons(Cell* const my_car, Cell* const my_cdr)
  */
 inline Cell* lambda(Cell* const my_formals, Cell* const my_body)
 {
-	return new ProcedureCell(my_formals, my_body);
+	CellPtr formals = (my_formals == nil) ? smart_nil : CellPtr(my_formals);
+	CellPtr body = (my_body == nil) ? smart_nil : CellPtr(my_body);
+ 	return new ProcedureCell(formals, body);
 }
 
 /**
@@ -94,7 +98,7 @@ inline bool listp(Cell* const c)
  */
 inline bool procedurep(Cell* const c)
 {
-	return !nullp(c) && c->is_procedure();
+	return c->is_procedure();
 }
 
 /**
@@ -103,7 +107,7 @@ inline bool procedurep(Cell* const c)
  */
 inline bool intp(Cell* const c)
 {
-	return !nullp(c) && c->is_int();
+	return c->is_int();
 }
 
 /**
@@ -112,7 +116,7 @@ inline bool intp(Cell* const c)
  */
 inline bool doublep(Cell* const c)
 {
-	return !nullp(c) && c->is_double();
+	return c->is_double();
 }
 
 /**
@@ -121,7 +125,7 @@ inline bool doublep(Cell* const c)
  */
 inline bool symbolp(Cell* const c)
 {
-	return !nullp(c) && c->is_symbol();
+	return c->is_symbol();
 }
 
 /**
@@ -158,7 +162,7 @@ inline std::string get_symbol(Cell* const c)
  */
 inline Cell* car(Cell* const c)
 {
-	return c->get_car();
+	return c->get_car().get();
 }
 
 /**
@@ -167,7 +171,7 @@ inline Cell* car(Cell* const c)
  */
 inline Cell* cdr(Cell* const c)
 {
-	return c->get_cdr();
+	return c->get_cdr().get();
 }
 
 /**
@@ -177,7 +181,7 @@ inline Cell* cdr(Cell* const c)
  */
 inline Cell* get_formals(Cell* const c)
 {
-	return c->get_formals();
+	return c->get_formals().get();
 }
 
 /**
@@ -187,7 +191,7 @@ inline Cell* get_formals(Cell* const c)
  */
 inline Cell* get_body(Cell* const c)
 {
-	return c->get_body();
+	return c->get_body().get();
 }
 
 /**

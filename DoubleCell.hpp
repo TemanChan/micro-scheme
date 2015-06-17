@@ -17,13 +17,13 @@ public:
 	virtual int get_int() const;
 	virtual double get_double() const;
 	virtual std::string get_symbol() const;
-	virtual Cell* get_car() const;
-	virtual Cell* get_cdr() const;
-	virtual Cell* get_formals() const;
-	virtual Cell* get_body() const;
+	virtual CellPtr get_car() const;
+	virtual CellPtr get_cdr() const;
+	virtual CellPtr get_formals() const;
+	virtual CellPtr get_body() const;
 	virtual void print(std::ostream& os = std::cout) const;
-	virtual Cell* eval();
-	virtual Cell* apply(Cell* const args);
+	virtual CellPtr eval();
+	virtual CellPtr apply(CellPtr const args);
 
 private:
 	double double_m;

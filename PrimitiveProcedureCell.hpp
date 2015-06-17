@@ -9,36 +9,36 @@
 class PrimitiveProcedureCell:public ProcedureCell
 {
 public:
-	PrimitiveProcedureCell(Cell* (*func)(Cell* const));
+	PrimitiveProcedureCell(CellPtr (*func)(CellPtr const));
 	virtual ~PrimitiveProcedureCell();
-	virtual Cell* apply(Cell* const args);
+	virtual CellPtr apply(CellPtr const args);
 	virtual void print(std::ostream& os = std::cout) const;
-	static Cell* add(Cell* const args);
-	static Cell* subtract(Cell* const args);
-	static Cell* multiply(Cell* const args);
-	static Cell* divide(Cell* const args);
-	static Cell* less_than(Cell* const args);
-	static Cell* ceiling(Cell* const args);
-	static Cell* pri_floor(Cell* const args);
-	static Cell* ifelse(Cell* const args);
-	static Cell* quote(Cell* const args);
-	static Cell* cons(Cell* const args);
-	static Cell* car(Cell* const args);
-	static Cell* cdr(Cell* const args);
-	static Cell* nullp(Cell* const args);
-	static Cell* pri_not(Cell* const args);
-	static Cell* define(Cell* const args);
-	static Cell* pri_print(Cell* const args);
-	static Cell* pri_eval(Cell* const args);
-	static Cell* lambda(Cell* const args);
-	static Cell* pri_apply(Cell* const args);
-	static Cell* let(Cell* const args);
-	static std::map<std::string, Cell*> create_map();
+	static CellPtr add(CellPtr const args);
+	static CellPtr subtract(CellPtr const args);
+	static CellPtr multiply(CellPtr const args);
+	static CellPtr divide(CellPtr const args);
+	static CellPtr less_than(CellPtr const args);
+	static CellPtr ceiling(CellPtr const args);
+	static CellPtr pri_floor(CellPtr const args);
+	static CellPtr ifelse(CellPtr const args);
+	static CellPtr quote(CellPtr const args);
+	static CellPtr cons(CellPtr const args);
+	static CellPtr car(CellPtr const args);
+	static CellPtr cdr(CellPtr const args);
+	static CellPtr nullp(CellPtr const args);
+	static CellPtr pri_not(CellPtr const args);
+	static CellPtr define(CellPtr const args);
+	static CellPtr pri_print(CellPtr const args);
+	static CellPtr pri_eval(CellPtr const args);
+	static CellPtr lambda(CellPtr const args);
+	static CellPtr pri_apply(CellPtr const args);
+	static CellPtr let(CellPtr const args);
+	static std::map<std::string, CellPtr> create_map();
 
 private:
 	template <typename IntOp, typename DoubleOp>
-	static Cell* arithmetic_operation(Cell* const operands, IntOp int_op, DoubleOp double_op, const std::string& op);
-	Cell* (*func_m)(Cell* const);
+	static CellPtr arithmetic_operation(CellPtr const operands, IntOp int_op, DoubleOp double_op, const std::string& op);
+	CellPtr (*func_m)(CellPtr const);
 };
 
 #endif

@@ -56,34 +56,34 @@ std::string DoubleCell::get_symbol() const
 	throw runtime_error("try to access the symbol member of a non-symbol Cell");
 }
 
-Cell* DoubleCell::get_car() const
+CellPtr DoubleCell::get_car() const
 {
 	throw runtime_error("try to access the car member of a non-cons Cell");
 }
 
-Cell* DoubleCell::get_cdr() const
+CellPtr DoubleCell::get_cdr() const
 {
 	throw runtime_error("try to access the cdr member of a non-cons Cell");
 }
 
-Cell* DoubleCell::get_formals() const
+CellPtr DoubleCell::get_formals() const
 {
 	throw runtime_error("try to access the formals member of a non-procedure Cell");
 }
 
-Cell* DoubleCell::get_body() const
+CellPtr DoubleCell::get_body() const
 {
 	throw runtime_error("try to access the body member of a non-procedure Cell");
 }
 
-Cell* DoubleCell::apply(Cell* const args)
+CellPtr DoubleCell::apply(CellPtr const args)
 {
 	throw runtime_error("try to apply with a double Cell");
 }
 
-Cell* DoubleCell::eval()
+CellPtr DoubleCell::eval()
 {
-	return this;
+	return shared_from_this();
 }
 
 void DoubleCell::print(ostream& os) const

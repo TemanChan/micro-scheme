@@ -31,11 +31,16 @@
 #include <list>
 #include <iterator>
 #include <utility> // pair
+#include <memory> // shared_ptr, enable_shared_from_this
+
+class Cell;
+
+typedef std::shared_ptr<Cell> CellPtr;
 
 /**
  * @brief A abstract base class for cells
  */
-class Cell
+class Cell:public std::enable_shared_from_this<Cell>
 {
 public:
 	virtual ~Cell(){}
@@ -52,28 +57,19 @@ public:
 	virtual int get_int() const = 0;
 	virtual double get_double() const = 0;
 	virtual std::string get_symbol() const = 0;
-	virtual Cell* get_car() const = 0;
-	virtual Cell* get_cdr() const = 0;
-	virtual Cell* get_formals() const = 0;
-	virtual Cell* get_body() const = 0;
+	virtual CellPtr get_car() const = 0;
+	virtual CellPtr get_cdr() const = 0;
+	virtual CellPtr get_formals() const = 0;
+	virtual CellPtr get_body() const = 0;
 	virtual void print(std::ostream& os = std::cout) const = 0;
-	virtual Cell* eval() = 0;
-	virtual Cell* apply(Cell* const args) = 0;
+	virtual CellPtr eval() = 0;
+	virtual CellPtr apply(CellPtr const args) = 0;
 };
 
 extern Cell* const nil;
-extern std::list<std::map<std::string, Cell*> > symbol_table;
+extern CellPtr const smart_nil;
+extern std::list<std::map<std::string, CellPtr> > symbol_table;
 
-inline std::map<std::string, Cell*>::iterator search_table(std::string& s)
-{
-	std::list<std::map<std::string, Cell*> >::iterator i = symbol_table.begin();
-	std::map<std::string, Cell*>::iterator j;
-	for(; i != symbol_table.end(); ++i){
-		j = i->find(s);
-		if(j != i->end())
-			return j;
-	}
-	return j;
-}
+std::map<std::string, CellPtr>::iterator search_table(const std::string& s);
 
 #endif

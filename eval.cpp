@@ -8,7 +8,7 @@
 
 #include "eval.hpp"
 
-Cell* eval(Cell* const c)
+CellPtr eval(CellPtr const c)
 {
 	return c->eval();
 }

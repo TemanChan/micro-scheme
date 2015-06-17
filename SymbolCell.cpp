@@ -2,6 +2,20 @@
 using namespace std;
 
 Cell* const nil = new SymbolCell("()");
+CellPtr const smart_nil(nil);
+
+map<string, CellPtr>::iterator search_table(const string& s)
+{
+	list<map<string, CellPtr> >::iterator i = symbol_table.begin();
+	map<string, CellPtr>::iterator j;
+	for(; i != symbol_table.end(); ++i){
+		j = i->find(s);
+		if(j != i->end())
+			return j;
+	}
+	return j;
+}
+
 
 SymbolCell::SymbolCell(const string& s):symbol_m(s)
 {
@@ -60,38 +74,38 @@ std::string SymbolCell::get_symbol() const
 	return symbol_m;
 }
 
-Cell* SymbolCell::get_car() const
+CellPtr SymbolCell::get_car() const
 {
 	throw runtime_error("try to access the car member of a non-cons Cell");
 }
 
-Cell* SymbolCell::get_cdr() const
+CellPtr SymbolCell::get_cdr() const
 {
 	throw runtime_error("try to access the cdr member of a non-cons Cell");
 }
 
-Cell* SymbolCell::get_formals() const
+CellPtr SymbolCell::get_formals() const
 {
 	throw runtime_error("try to access the formals member of a non-procedure Cell");
 }
 
-Cell* SymbolCell::get_body() const
+CellPtr SymbolCell::get_body() const
 {
 	throw runtime_error("try to access the body member of a non-procedure Cell");
 }
 
-Cell* SymbolCell::apply(Cell* const args)
+CellPtr SymbolCell::apply(CellPtr const args)
 {
 	throw runtime_error("try to apply with a symbol Cell");
 }
 
-Cell* SymbolCell::eval()
+CellPtr SymbolCell::eval()
 {
 	if(this == nil)
 		throw runtime_error("empty list cannot be evaluated");
-	map<string, Cell*>::iterator it = search_table(symbol_m);
+	map<string, CellPtr>::iterator it = search_table(symbol_m);
 	if(it == symbol_table.rbegin()->end())
-		throw runtime_error("attempt to evaluate un-definded symbol Cell " + symbol_m);
+		throw runtime_error("try to evaluate an un-definded symbol Cell \"" + symbol_m + "\"");
 	else
 		return it->second;
 }

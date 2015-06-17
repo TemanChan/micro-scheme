@@ -10,6 +10,7 @@
 #include <stdexcept>
 #include "parse.hpp"
 #include "eval.hpp"
+#include "Cell.hpp" // CellPtr
 #include <sstream>
 #include <fstream>
 
@@ -22,15 +23,10 @@ using namespace std;
 void parse_eval_print(string sexpr)
 {
 	try {
-		Cell* root = parse(sexpr);
-		Cell* result = eval(root);
-		if ( result == NULL ) {
-			cout << "()" << endl;
-		} else {
-			cout << *result << endl;
-		}
-		// delete root;
-		// delete result;
+		Cell* c = parse(sexpr);
+		CellPtr root = (c == nil) ? smart_nil : CellPtr(c);
+		CellPtr result(eval(root));
+		cout << *result << endl;
 	} catch (runtime_error &e) {
 		cerr << "ERROR: " << e.what() << endl;
 	} catch (logic_error &e) {

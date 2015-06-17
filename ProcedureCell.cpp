@@ -3,17 +3,14 @@
 #include <stack>
 using namespace std;
 
-ProcedureCell::ProcedureCell(Cell* formals, Cell* body):formals_m(formals), body_m(body)
+ProcedureCell::ProcedureCell(CellPtr formals, CellPtr body):formals_m(formals), body_m(body)
 {
 
 }
 
 ProcedureCell::~ProcedureCell()
 {
-	if(formals_m != nil)
-		delete formals_m;
-	if(body_m != nil)
-		delete body_m;
+
 }
 
 bool ProcedureCell::is_int() const
@@ -61,22 +58,22 @@ string ProcedureCell::get_symbol() const
 	throw runtime_error("try to access the symbol member of a non-symbol Cell");
 }
 
-Cell* ProcedureCell::get_car() const
+CellPtr ProcedureCell::get_car() const
 {
 	throw runtime_error("try to access the car member of a non-cons Cell");
 }
 
-Cell* ProcedureCell::get_cdr() const
+CellPtr ProcedureCell::get_cdr() const
 {
 	throw runtime_error("try to access the cdr member of a non-cons Cell");
 }
 
-Cell* ProcedureCell::get_formals() const
+CellPtr ProcedureCell::get_formals() const
 {
 	return formals_m;
 }
 
-Cell* ProcedureCell::get_body() const
+CellPtr ProcedureCell::get_body() const
 {
 	return body_m;
 }
@@ -86,50 +83,54 @@ void ProcedureCell::print(ostream& os) const
 	os << "#<procedure>";
 }
 
-Cell* ProcedureCell::eval()
+CellPtr ProcedureCell::eval()
 {
-	return this;
+	return shared_from_this();
 }
 
-Cell* ProcedureCell::apply(Cell* const args)
+CellPtr ProcedureCell::apply(CellPtr const args)
 {
-	map<string, Cell*> local_table;
-	if(formals_m->is_symbol()){
-		stack<Cell*> arg_stack;
-		Cell* curr_cons = args;
-		while(!curr_cons->is_nil()){
-			arg_stack.push(curr_cons->get_car()->eval());
-			curr_cons = curr_cons->get_cdr();
+	symbol_table.push_front(map<string, CellPtr>());
+	map<string, CellPtr>& local_table = *(symbol_table.begin());
+	try{
+		if(formals_m->is_symbol()){
+			stack<CellPtr> arg_stack;
+			CellPtr curr_cons = args;
+			while(!curr_cons->is_nil()){
+				arg_stack.push(curr_cons->get_car()->eval());
+				curr_cons = curr_cons->get_cdr();
+			}
+			
+			CellPtr arguments = smart_nil;
+			while(!arg_stack.empty()){
+				arguments = make_shared<ConsCell>(arg_stack.top(), arguments);
+				arg_stack.pop();
+			}
+			local_table.insert(map<string, CellPtr>::value_type(formals_m->get_symbol(), arguments));
 		}
-		
-		Cell* arguments = nil;
-		while(!arg_stack.empty()){
-			arguments = new ConsCell(arg_stack.top(), arguments);
-			arg_stack.pop();
+		else{
+			CellPtr form_cons = formals_m;
+			CellPtr arg_cons = args;
+			while(!(form_cons->is_nil() || arg_cons->is_nil())){
+				local_table.insert(map<string, CellPtr>::value_type(form_cons->get_car()->get_symbol(), 	arg_cons->get_car()->eval()));
+				form_cons = form_cons->get_cdr();
+				arg_cons = arg_cons->get_cdr();
+			}
+	
+			if(!(form_cons->is_nil() && arg_cons->is_nil()))
+				throw runtime_error("arguments number mismatch");
 		}
-		local_table.insert(map<string, Cell*>::value_type(formals_m->get_symbol(), arguments));
-	}
-	else{
-		Cell* form_cons = formals_m;
-		Cell* arg_cons = args;
-		while(!(form_cons->is_nil() || arg_cons->is_nil())){
-			local_table.insert(map<string, Cell*>::value_type(form_cons->get_car()->get_symbol(), arg_cons->get_car()->eval()));
-			form_cons = form_cons->get_cdr();
-			arg_cons = arg_cons->get_cdr();
+	
+		CellPtr body_cons = body_m;
+		while(!body_cons->get_cdr()->is_nil()){
+			body_cons->get_car()->eval();
+			body_cons = body_cons->get_cdr();
 		}
-
-		if(!(form_cons->is_nil() && arg_cons->is_nil()))
-			throw runtime_error("arguments number mismatch");
+		CellPtr result = body_cons->get_car()->eval();
+		symbol_table.pop_front();
+		return result;
+	}catch(...){
+		symbol_table.pop_front();
+		throw;
 	}
-
-	symbol_table.push_front(local_table);
-
-	Cell* body_cons = body_m;
-	while(!body_cons->get_cdr()->is_nil()){
-		body_cons->get_car()->eval();
-		body_cons = body_cons->get_cdr();
-	}
-	Cell* result = body_cons->get_car()->eval();
-	symbol_table.pop_front();
-	return result;
 }

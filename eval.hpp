@@ -17,6 +17,6 @@ using namespace std;
  *
  * \return The value resulting from evaluating the expression.
  */
-Cell* eval(Cell* const c);
+CellPtr eval(CellPtr const c);
 
 #endif // EVAL_HPP
