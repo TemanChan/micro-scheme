@@ -360,6 +360,19 @@ CellPtr PrimitiveProcedureCell::arithmetic_operation(CellPtr const operands, Int
 	return make_shared<DoubleCell>(double_result);
 }
 
+CellPtr PrimitiveProcedureCell::pri_set(CellPtr const args)
+{
+	if(args->is_nil() || args->get_cdr()->is_nil() || !args->get_cdr()->get_cdr()->is_nil())
+		throw runtime_error("set! operator requires exactly two operands");
+	string s = args->get_car()->get_symbol();
+	map<string, CellPtr>::iterator it = search_table(s);
+	if(it == symbol_table.rbegin()->end())
+		throw runtime_error("cannot set undefined variable \"" + s + "\"");
+	else
+		it->second = args->get_cdr()->get_car()->eval();
+	return smart_nil;	
+}
+
 map<string, CellPtr> PrimitiveProcedureCell::create_map()
 {
 	map<string, CellPtr> init_map;
@@ -383,5 +396,6 @@ map<string, CellPtr> PrimitiveProcedureCell::create_map()
 	init_map.insert(pair<string, CellPtr>("lambda", make_shared<PrimitiveProcedureCell>(&lambda)));
 	init_map.insert(pair<string, CellPtr>("apply", make_shared<PrimitiveProcedureCell>(&pri_apply)));
 	init_map.insert(pair<string, CellPtr>("let", make_shared<PrimitiveProcedureCell>(&let)));
+	init_map.insert(pair<string, CellPtr>("set!", make_shared<PrimitiveProcedureCell>(&pri_set)));
 	return init_map;
 }

@@ -33,6 +33,7 @@ public:
 	static CellPtr lambda(CellPtr const args);
 	static CellPtr pri_apply(CellPtr const args);
 	static CellPtr let(CellPtr const args);
+	static CellPtr pri_set(CellPtr const args);
 	static std::map<std::string, CellPtr> create_map();
 
 private:
