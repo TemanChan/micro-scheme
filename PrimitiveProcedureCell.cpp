@@ -184,6 +184,8 @@ CellPtr PrimitiveProcedureCell::cons(CellPtr const args)
 		throw runtime_error("cons operator requires exactly two operands");
 	CellPtr car = args->get_car()->eval();
 	CellPtr cdr = args->get_cdr()->get_car()->eval();
+	if(!(cdr->is_nil() || cdr->is_cons()))
+		throw runtime_error("cdr of a cons must be a list");
 	return make_shared<ConsCell>(car, cdr);
 }
 

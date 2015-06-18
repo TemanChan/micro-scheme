@@ -90,37 +90,37 @@ CellPtr ProcedureCell::eval()
 
 CellPtr ProcedureCell::apply(CellPtr const args)
 {
-	symbol_table.push_front(map<string, CellPtr>());
-	map<string, CellPtr>& local_table = *(symbol_table.begin());
+	map<string, CellPtr> local_table;
+	if(formals_m->is_symbol()){
+		stack<CellPtr> arg_stack;
+		CellPtr curr_cons = args;
+		while(!curr_cons->is_nil()){
+			arg_stack.push(curr_cons->get_car()->eval());
+			curr_cons = curr_cons->get_cdr();
+		}
+		
+		CellPtr arguments = smart_nil;
+		while(!arg_stack.empty()){
+			arguments = make_shared<ConsCell>(arg_stack.top(), arguments);
+			arg_stack.pop();
+		}
+		local_table.insert(map<string, CellPtr>::value_type(formals_m->get_symbol(), arguments));
+	}
+	else{
+		CellPtr form_cons = formals_m;
+		CellPtr arg_cons = args;
+		while(!(form_cons->is_nil() || arg_cons->is_nil())){
+			local_table.insert(map<string, CellPtr>::value_type(form_cons->get_car()->get_symbol(), arg_cons->get_car()->eval()));
+			form_cons = form_cons->get_cdr();
+			arg_cons = arg_cons->get_cdr();
+		}
+
+		if(!(form_cons->is_nil() && arg_cons->is_nil()))
+			throw runtime_error("arguments number mismatch");
+	}
+
+	symbol_table.push_front(local_table);
 	try{
-		if(formals_m->is_symbol()){
-			stack<CellPtr> arg_stack;
-			CellPtr curr_cons = args;
-			while(!curr_cons->is_nil()){
-				arg_stack.push(curr_cons->get_car()->eval());
-				curr_cons = curr_cons->get_cdr();
-			}
-			
-			CellPtr arguments = smart_nil;
-			while(!arg_stack.empty()){
-				arguments = make_shared<ConsCell>(arg_stack.top(), arguments);
-				arg_stack.pop();
-			}
-			local_table.insert(map<string, CellPtr>::value_type(formals_m->get_symbol(), arguments));
-		}
-		else{
-			CellPtr form_cons = formals_m;
-			CellPtr arg_cons = args;
-			while(!(form_cons->is_nil() || arg_cons->is_nil())){
-				local_table.insert(map<string, CellPtr>::value_type(form_cons->get_car()->get_symbol(), 	arg_cons->get_car()->eval()));
-				form_cons = form_cons->get_cdr();
-				arg_cons = arg_cons->get_cdr();
-			}
-	
-			if(!(form_cons->is_nil() && arg_cons->is_nil()))
-				throw runtime_error("arguments number mismatch");
-		}
-	
 		CellPtr body_cons = body_m;
 		while(!body_cons->get_cdr()->is_nil()){
 			body_cons->get_car()->eval();
