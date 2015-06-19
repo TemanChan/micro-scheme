@@ -161,10 +161,8 @@ void readconsole()
 		cout << "> ";
 		getline(cin, sexpr);
 		if (cin.eof()) {
+			cout << endl;
 			break;
-		}
-		if ("(exit)" == sexpr) {
-			return;
 		}
 		parse_eval_print(sexpr);
 	} while (true);

@@ -6,6 +6,8 @@
 #include <functional>
 #include <set>
 #include <iterator>
+#include <cstdlib> // exit
+#include <fstream>
 using namespace std;
 
 list<map<string, CellPtr> > symbol_table(1, PrimitiveProcedureCell::create_map());
@@ -219,6 +221,38 @@ CellPtr PrimitiveProcedureCell::nullp(CellPtr const args)
 	return make_shared<IntCell>(operand->is_nil());
 }
 
+CellPtr PrimitiveProcedureCell::intp(CellPtr const args)
+{
+	if(args->is_nil() || !args->get_cdr()->is_nil())
+		throw runtime_error("intp operator requires exactly one operand");
+	CellPtr operand = args->get_car()->eval();
+	return make_shared<IntCell>(operand->is_int());
+}
+
+CellPtr PrimitiveProcedureCell::doublep(CellPtr const args)
+{
+	if(args->is_nil() || !args->get_cdr()->is_nil())
+		throw runtime_error("doublep operator requires exactly one operand");
+	CellPtr operand = args->get_car()->eval();
+	return make_shared<IntCell>(operand->is_double());
+}
+
+CellPtr PrimitiveProcedureCell::symbolp(CellPtr const args)
+{
+	if(args->is_nil() || !args->get_cdr()->is_nil())
+		throw runtime_error("symbolp operator requires exactly one operand");
+	CellPtr operand = args->get_car()->eval();
+	return make_shared<IntCell>(operand->is_symbol());
+}
+
+CellPtr PrimitiveProcedureCell::listp(CellPtr const args)
+{
+	if(args->is_nil() || !args->get_cdr()->is_nil())
+		throw runtime_error("listp operator requires exactly one operand");
+	CellPtr operand = args->get_car()->eval();
+	return make_shared<IntCell>(operand->is_nil() || operand->is_cons());
+}
+
 CellPtr PrimitiveProcedureCell::pri_not(CellPtr const args)
 {
 	if(args->is_nil() || !args->get_cdr()->is_nil())
@@ -373,6 +407,37 @@ CellPtr PrimitiveProcedureCell::pri_set(CellPtr const args)
 	return smart_nil;	
 }
 
+CellPtr PrimitiveProcedureCell::pri_exit(CellPtr const args)
+{
+	if(!(args->is_nil() || args->get_cdr()->is_nil()))
+		throw runtime_error("exit requires either 0 or 1 operand");
+	if(!args->is_nil()){
+		CellPtr c = args->get_car()->eval();
+		if(c->is_int())
+			exit(c->get_int());
+	}
+	else
+		exit(0);
+}
+
+void readfile(ifstream& fin); // defined in main.cpp
+CellPtr PrimitiveProcedureCell::loadfile(CellPtr const args)
+{
+	if(args->is_nil() || !args->get_cdr()->is_nil())
+		throw runtime_error("load operator requires exactly one operand");
+	if(args->get_car()->is_symbol()){
+		string filename = args->get_car()->get_symbol();
+		ifstream file(filename.c_str());
+		if(file.is_open())
+			readfile(file);
+		else
+			throw runtime_error("cannot open file \"" + filename + "\"");
+		return smart_nil;
+	}
+	else
+		throw runtime_error("load operator requires exactly one symbol operand");
+}
+
 map<string, CellPtr> PrimitiveProcedureCell::create_map()
 {
 	map<string, CellPtr> init_map;
@@ -389,6 +454,10 @@ map<string, CellPtr> PrimitiveProcedureCell::create_map()
 	init_map.insert(pair<string, CellPtr>("car", make_shared<PrimitiveProcedureCell>(&car)));
 	init_map.insert(pair<string, CellPtr>("cdr", make_shared<PrimitiveProcedureCell>(&cdr)));
 	init_map.insert(pair<string, CellPtr>("nullp", make_shared<PrimitiveProcedureCell>(&nullp)));
+	init_map.insert(pair<string, CellPtr>("intp", make_shared<PrimitiveProcedureCell>(&intp)));
+	init_map.insert(pair<string, CellPtr>("doublep", make_shared<PrimitiveProcedureCell>(&doublep)));
+	init_map.insert(pair<string, CellPtr>("symbolp", make_shared<PrimitiveProcedureCell>(&symbolp)));
+	init_map.insert(pair<string, CellPtr>("listp", make_shared<PrimitiveProcedureCell>(&listp)));
 	init_map.insert(pair<string, CellPtr>("not", make_shared<PrimitiveProcedureCell>(&pri_not)));
 	init_map.insert(pair<string, CellPtr>("define", make_shared<PrimitiveProcedureCell>(&define)));
 	init_map.insert(pair<string, CellPtr>("print", make_shared<PrimitiveProcedureCell>(&pri_print)));
@@ -397,5 +466,7 @@ map<string, CellPtr> PrimitiveProcedureCell::create_map()
 	init_map.insert(pair<string, CellPtr>("apply", make_shared<PrimitiveProcedureCell>(&pri_apply)));
 	init_map.insert(pair<string, CellPtr>("let", make_shared<PrimitiveProcedureCell>(&let)));
 	init_map.insert(pair<string, CellPtr>("set!", make_shared<PrimitiveProcedureCell>(&pri_set)));
+	init_map.insert(pair<string, CellPtr>("exit", make_shared<PrimitiveProcedureCell>(&pri_exit)));
+	init_map.insert(pair<string, CellPtr>("load", make_shared<PrimitiveProcedureCell>(&loadfile)));
 	return init_map;
 }

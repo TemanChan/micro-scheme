@@ -26,6 +26,10 @@ public:
 	static CellPtr car(CellPtr const args);
 	static CellPtr cdr(CellPtr const args);
 	static CellPtr nullp(CellPtr const args);
+	static CellPtr intp(CellPtr const args);
+	static CellPtr doublep(CellPtr const args);
+	static CellPtr symbolp(CellPtr const args);
+	static CellPtr listp(CellPtr const args);
 	static CellPtr pri_not(CellPtr const args);
 	static CellPtr define(CellPtr const args);
 	static CellPtr pri_print(CellPtr const args);
@@ -34,6 +38,8 @@ public:
 	static CellPtr pri_apply(CellPtr const args);
 	static CellPtr let(CellPtr const args);
 	static CellPtr pri_set(CellPtr const args);
+	static CellPtr pri_exit(CellPtr const args);
+	static CellPtr loadfile(CellPtr const args);
 	static std::map<std::string, CellPtr> create_map();
 
 private:
