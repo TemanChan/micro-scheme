@@ -10,11 +10,6 @@
 #define CONS_HPP
 
 #include "Cell.hpp"
-#include "IntCell.hpp"
-#include "DoubleCell.hpp"
-#include "SymbolCell.hpp"
-#include "ConsCell.hpp"
-#include "ProcedureCell.hpp"
 #include <string>
 #include <iostream>
 

@@ -1,40 +1,40 @@
 CC = g++
 FLAGS = -std=c++11
 TARGET = main
-OBJS = ConsCell.o DoubleCell.o eval.o IntCell.o main.o parse.o SymbolCell.o \
+OBJS = Cell.o ConsCell.o DoubleCell.o eval.o IntCell.o main.o parse.o SymbolCell.o \
 		ProcedureCell.o PrimitiveProcedureCell.o
 
 ${TARGET}: ${OBJS}
 	${CC} ${FLAGS} -o ${TARGET} $^
 
-ConsCell.o: ConsCell.cpp ConsCell.hpp Cell.hpp
+Cell.o: Cell.hpp
+	${CC} ${FLAGS} -c Cell.cpp
+
+ConsCell.o: ConsCell.cpp Cell.hpp
 	${CC} ${FLAGS} -c ConsCell.cpp
 
-DoubleCell.o: DoubleCell.cpp DoubleCell.hpp Cell.hpp
+DoubleCell.o: DoubleCell.cpp Cell.hpp
 	${CC} ${FLAGS} -c DoubleCell.cpp
 
-eval.o: eval.cpp eval.hpp cons.hpp Cell.hpp IntCell.hpp \
- DoubleCell.hpp SymbolCell.hpp ConsCell.hpp
+eval.o: eval.cpp eval.hpp cons.hpp Cell.hpp
 	${CC} ${FLAGS} -c eval.cpp
 
-IntCell.o: IntCell.cpp IntCell.hpp Cell.hpp
+IntCell.o: IntCell.cpp Cell.hpp
 	${CC} ${FLAGS} -c IntCell.cpp
 
-main.o: main.cpp parse.hpp cons.hpp Cell.hpp IntCell.hpp \
- DoubleCell.hpp SymbolCell.hpp ConsCell.hpp eval.hpp
+main.o: main.cpp parse.hpp cons.hpp Cell.hpp eval.hpp
 	${CC} ${FLAGS} -c main.cpp
 
-parse.o: parse.cpp parse.hpp cons.hpp Cell.hpp IntCell.hpp \
- DoubleCell.hpp SymbolCell.hpp ConsCell.hpp
+parse.o: parse.cpp parse.hpp cons.hpp Cell.hpp
 	${CC} ${FLAGS} -c parse.cpp
 
-SymbolCell.o: SymbolCell.cpp SymbolCell.hpp Cell.hpp
+SymbolCell.o: SymbolCell.cpp Cell.hpp
 	${CC} ${FLAGS} -c SymbolCell.cpp
 
-ProcedureCell.o: ProcedureCell.cpp ProcedureCell.hpp Cell.hpp
+ProcedureCell.o: ProcedureCell.cpp Cell.hpp
 	${CC} ${FLAGS} -c ProcedureCell.cpp
 
-PrimitiveProcedureCell.o: ProcedureCell.hpp PrimitiveProcedureCell.cpp PrimitiveProcedureCell.hpp Cell.hpp
+PrimitiveProcedureCell.o: PrimitiveProcedureCell.cpp Cell.hpp
 	${CC} ${FLAGS} -c PrimitiveProcedureCell.cpp
 
 doc:

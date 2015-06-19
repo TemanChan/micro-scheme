@@ -1,8 +1,4 @@
-#include "PrimitiveProcedureCell.hpp"
-#include "IntCell.hpp"
-#include "DoubleCell.hpp"
-#include "SymbolCell.hpp"
-#include "ConsCell.hpp"
+#include "Cell.hpp"
 #include <functional>
 #include <set>
 #include <iterator>
@@ -10,16 +6,8 @@
 #include <fstream>
 using namespace std;
 
-list<map<string, CellPtr> > symbol_table(1, PrimitiveProcedureCell::create_map());
-
-
 PrimitiveProcedureCell::PrimitiveProcedureCell(CellPtr (*func)(CellPtr const))
 	:ProcedureCell(smart_nil, smart_nil), func_m(func)
-{
-
-}
-
-PrimitiveProcedureCell::~PrimitiveProcedureCell()
 {
 
 }

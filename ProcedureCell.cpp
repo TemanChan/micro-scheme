@@ -1,5 +1,4 @@
-#include "ProcedureCell.hpp"
-#include "ConsCell.hpp"
+#include "Cell.hpp"
 #include <stack>
 using namespace std;
 
@@ -8,64 +7,9 @@ ProcedureCell::ProcedureCell(CellPtr formals, CellPtr body):formals_m(formals), 
 
 }
 
-ProcedureCell::~ProcedureCell()
-{
-
-}
-
-bool ProcedureCell::is_int() const
-{
-	return false;
-}
-
-bool ProcedureCell::is_double() const
-{
-	return false;
-}
-
-bool ProcedureCell::is_symbol() const
-{
-	return false;
-}
-
-bool ProcedureCell::is_cons() const
-{
-	return false;
-}
-
 bool ProcedureCell::is_procedure() const
 {
 	return true;
-}
-
-bool ProcedureCell::is_nil() const
-{
-	return false;
-}
-
-int ProcedureCell::get_int() const
-{
-	throw runtime_error("try to access the int member of a non-int Cell");
-}
-
-double ProcedureCell::get_double() const
-{
-	throw runtime_error("try to access the double member of a non-double Cell");
-}
-
-string ProcedureCell::get_symbol() const
-{
-	throw runtime_error("try to access the symbol member of a non-symbol Cell");
-}
-
-CellPtr ProcedureCell::get_car() const
-{
-	throw runtime_error("try to access the car member of a non-cons Cell");
-}
-
-CellPtr ProcedureCell::get_cdr() const
-{
-	throw runtime_error("try to access the cdr member of a non-cons Cell");
 }
 
 CellPtr ProcedureCell::get_formals() const
@@ -81,11 +25,6 @@ CellPtr ProcedureCell::get_body() const
 void ProcedureCell::print(ostream& os) const
 {
 	os << "#<procedure>";
-}
-
-CellPtr ProcedureCell::eval()
-{
-	return shared_from_this();
 }
 
 CellPtr ProcedureCell::apply(CellPtr const args)

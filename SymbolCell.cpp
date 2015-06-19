@@ -1,40 +1,9 @@
-#include "SymbolCell.hpp"
+#include "Cell.hpp"
 using namespace std;
-
-Cell* const nil = new SymbolCell("()");
-CellPtr const smart_nil(nil);
-
-map<string, CellPtr>::iterator search_table(const string& s)
-{
-	list<map<string, CellPtr> >::iterator i = symbol_table.begin();
-	map<string, CellPtr>::iterator j;
-	for(; i != symbol_table.end(); ++i){
-		j = i->find(s);
-		if(j != i->end())
-			return j;
-	}
-	return j;
-}
-
 
 SymbolCell::SymbolCell(const string& s):symbol_m(s)
 {
 
-}
-
-SymbolCell::~SymbolCell()
-{
-
-}
-
-bool SymbolCell::is_int() const
-{
-	return false;
-}
-
-bool SymbolCell::is_double() const
-{
-	return false;
 }
 
 bool SymbolCell::is_symbol() const
@@ -42,29 +11,9 @@ bool SymbolCell::is_symbol() const
 	return this != nil;
 }
 
-bool SymbolCell::is_cons() const
-{
-	return false;
-}
-
-bool SymbolCell::is_procedure() const
-{
-	return false;
-}
-
 bool SymbolCell::is_nil() const
 {
 	return this == nil;
-}
-
-int SymbolCell::get_int() const
-{
-	throw runtime_error("try to access the int member of a non-int Cell");
-}
-
-double SymbolCell::get_double() const
-{
-	throw runtime_error("try to access the double member of a non-double Cell");
 }
 
 std::string SymbolCell::get_symbol() const
@@ -72,31 +21,6 @@ std::string SymbolCell::get_symbol() const
 	if(this == nil)
 		throw runtime_error("try to access the symbol member of a non-symbol Cell");
 	return symbol_m;
-}
-
-CellPtr SymbolCell::get_car() const
-{
-	throw runtime_error("try to access the car member of a non-cons Cell");
-}
-
-CellPtr SymbolCell::get_cdr() const
-{
-	throw runtime_error("try to access the cdr member of a non-cons Cell");
-}
-
-CellPtr SymbolCell::get_formals() const
-{
-	throw runtime_error("try to access the formals member of a non-procedure Cell");
-}
-
-CellPtr SymbolCell::get_body() const
-{
-	throw runtime_error("try to access the body member of a non-procedure Cell");
-}
-
-CellPtr SymbolCell::apply(CellPtr const args)
-{
-	throw runtime_error("try to apply with a symbol Cell");
 }
 
 CellPtr SymbolCell::eval()
