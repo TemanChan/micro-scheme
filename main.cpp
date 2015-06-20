@@ -13,6 +13,7 @@
 #include "Cell.hpp" // CellPtr
 #include <sstream>
 #include <fstream>
+#include <limits> // numeric_limits
 
 using namespace std;
 
@@ -76,6 +77,7 @@ void readfile(ifstream& fin)
 	string sexp;
 	bool isstartsexp = false;
 	int inumleftparenthesis = 0;
+	char prev_char = '\0';
 
 	// check whether to read the end
 	while (!fin.eof()) {
@@ -90,6 +92,13 @@ void readfile(ifstream& fin)
 		if ((true == iswhitespace(currentchar))&&(false == isstartsexp)) {
 			continue;
 		}
+
+		// if current char is ';', move to the next line
+		if(currentchar  == ';' && prev_char != '\''){
+			fin.ignore(numeric_limits<streamsize>::max(), '\n');
+			continue;
+		}
+
 		// run across a new s-expression
 		if ((false == isstartsexp)&&(false == iswhitespace(currentchar))) {
 			// check whether single symbol
@@ -135,6 +144,7 @@ void readfile(ifstream& fin)
 				}
 			}
 		}
+		prev_char = currentchar;
 	}
 }
 
