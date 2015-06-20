@@ -72,19 +72,26 @@ CellPtr PrimitiveProcedureCell::divide(CellPtr const args)
 		return arithmetic_operation(args, divides<int>(), divides<double>(), "/");
 }
 
+
 CellPtr PrimitiveProcedureCell::less_than(CellPtr const args)
 {
 	if(args->is_nil())
 		return make_shared<IntCell>(1);
-	int is_increasing = 1;
-	double prev, curr;
-	CellPtr curr_cons = args;
-	CellPtr curr_car = curr_cons->get_car()->eval();
-	if(curr_car->is_int())
-		prev = curr_car->get_int();
+	CellPtr operand = args->get_car()->eval();
+	if(operand->is_int())
+		return num_lt(operand->get_int(), args->get_cdr());
+	else if(operand->is_double())
+		return num_lt(operand->get_double(), args->get_cdr());
+	else if(operand->is_symbol())
+		return symbol_lt(operand->get_symbol(), args->get_cdr());
 	else
-		prev = curr_car->get_double();
-	curr_cons = curr_cons->get_cdr();
+		throw runtime_error("try to use < operator with a Cell that cannot do");
+}
+CellPtr PrimitiveProcedureCell::num_lt(double prev, CellPtr curr_cons)
+{
+	int is_increasing = 1;
+	double curr;
+	CellPtr curr_car = smart_nil;
 	while(!curr_cons->is_nil()){
 		curr_car = curr_cons->get_car()->eval();
 		if(curr_car->is_int())
@@ -98,7 +105,33 @@ CellPtr PrimitiveProcedureCell::less_than(CellPtr const args)
 			while(!curr_cons->is_nil()){
 				curr_car = curr_cons->get_car()->eval();
 				if(!(curr_car->is_int() || curr_car->is_double()))
-					throw runtime_error("try to use < operator with a Cell that cannot do");
+					throw runtime_error("operands for operator < are invalid");
+				curr_cons = curr_cons->get_cdr();
+			}
+			break;
+		}
+		prev = curr;
+		curr_cons = curr_cons->get_cdr();
+	}
+	return make_shared<IntCell>(is_increasing);
+}
+
+CellPtr PrimitiveProcedureCell::symbol_lt(string prev, CellPtr curr_cons)
+{
+	int is_increasing = 1;
+	string curr;
+	CellPtr curr_car = smart_nil;
+	while(!curr_cons->is_nil()){
+		curr_car = curr_cons->get_car()->eval();
+		curr = curr_car->get_symbol();
+		if(prev >= curr){
+			is_increasing = 0;
+			// check whether the remaining operands are valid or not;
+			curr_cons = curr_cons->get_cdr();
+			while(!curr_cons->is_nil()){
+				curr_car = curr_cons->get_car()->eval();
+				if(!curr_car->is_symbol())
+					throw runtime_error("operands for operator < are invalid");
 				curr_cons = curr_cons->get_cdr();
 			}
 			break;
@@ -416,8 +449,10 @@ CellPtr PrimitiveProcedureCell::loadfile(CellPtr const args)
 	if(args->get_car()->is_symbol()){
 		string filename = args->get_car()->get_symbol();
 		ifstream file(filename.c_str());
-		if(file.is_open())
+		if(file.is_open()){
 			readfile(file);
+			file.close();
+		}
 		else
 			throw runtime_error("cannot open file \"" + filename + "\"");
 		return smart_nil;

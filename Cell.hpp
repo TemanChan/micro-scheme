@@ -176,6 +176,8 @@ public:
 private:
 	template <typename IntOp, typename DoubleOp>
 	static CellPtr arithmetic_operation(CellPtr const operands, IntOp int_op, DoubleOp double_op, const std::string& op);
+	static CellPtr num_lt(double prev, CellPtr curr_cons);
+	static CellPtr symbol_lt(std::string, CellPtr curr_cons);
 	CellPtr (*func_m)(CellPtr const);
 };
 
