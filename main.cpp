@@ -27,7 +27,8 @@ void parse_eval_print(string sexpr)
 		Cell* c = parse(sexpr);
 		CellPtr root = (c == nil) ? smart_nil : CellPtr(c);
 		CellPtr result(eval(root));
-		cout << *result << endl;
+		if(result != smart_nil)
+			cout << *result << endl;
 	} catch (runtime_error &e) {
 		cerr << "ERROR: " << e.what() << endl;
 	} catch (logic_error &e) {
@@ -183,6 +184,13 @@ void readconsole()
  */
 int main(int argc, char* argv[])
 {
+	if(argc < 3){
+		ifstream file("library.scm");
+		if(file.is_open()){
+			readfile(file);
+			file.close();
+		}
+	}
 	switch(argc) {
 	case 1:
 		// read from the standard input
