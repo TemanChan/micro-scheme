@@ -1,10 +1,17 @@
-#include "Cell.hpp"
 #include <functional>
 #include <set>
-#include <iterator>
 #include <cstdlib> // exit
 #include <fstream>
+#include "IntCell.hpp"
+#include "DoubleCell.hpp"
+#include "SymbolCell.hpp"
+#include "ConsCell.hpp"
+#include "PrimitiveProcedureCell.hpp"
+#include "Scope.hpp"
 using namespace std;
+
+ScopePtr global_scope = make_shared<Scope>(nullptr, PrimitiveProcedureCell::create_map());
+ScopePtr current_scope = global_scope;
 
 PrimitiveProcedureCell::PrimitiveProcedureCell(CellPtr (*func)(CellPtr const))
 	:ProcedureCell(smart_nil, smart_nil), func_m(func)
@@ -290,10 +297,10 @@ CellPtr PrimitiveProcedureCell::define(CellPtr const args)
 	if(args->is_nil() || args->get_cdr()->is_nil() || !args->get_cdr()->get_cdr()->is_nil())
 		throw runtime_error("define operator requires exactly two operands");
 	string s = args->get_car()->get_symbol();
-	if(symbol_table.begin()->find(s) != symbol_table.begin()->end())
+	if(current_scope->count(s))
 		throw runtime_error("symbol \"" + s + "\" cannot be re-defined in this scope");
 	else
-		symbol_table.begin()->insert(map<string, CellPtr>::value_type(s, args->get_cdr()->get_car()->eval()));
+		current_scope->insert(Scope::value_type(s, args->get_cdr()->get_car()->eval()));
 	return smart_nil;
 }
 
@@ -337,7 +344,7 @@ CellPtr PrimitiveProcedureCell::lambda(CellPtr const args)
 			curr_cons = curr_cons->get_cdr();
 		}
 	}
-	return make_shared<ProcedureCell>(formals, body);
+	return make_shared<ProcedureCell>(formals, body, current_scope);
 }
 
 CellPtr PrimitiveProcedureCell::pri_apply(CellPtr const args)
@@ -368,7 +375,7 @@ CellPtr PrimitiveProcedureCell::let(CellPtr const args)
 		arguments = make_shared<ConsCell>(curr_pair->get_cdr()->get_car(), arguments);
 		curr_cons = curr_cons->get_cdr();
 	}
-	return ProcedureCell(formals, body).apply(arguments);
+	return ProcedureCell(formals, body, current_scope).apply(arguments);
 }
 
 template <typename IntOp, typename DoubleOp>
@@ -420,8 +427,8 @@ CellPtr PrimitiveProcedureCell::pri_set(CellPtr const args)
 	if(args->is_nil() || args->get_cdr()->is_nil() || !args->get_cdr()->get_cdr()->is_nil())
 		throw runtime_error("set! operator requires exactly two operands");
 	string s = args->get_car()->get_symbol();
-	map<string, CellPtr>::iterator it = search_table(s);
-	if(it == symbol_table.rbegin()->end())
+	map<string, CellPtr>::iterator it = current_scope->find(s);
+	if(it == current_scope->end())
 		throw runtime_error("cannot set undefined variable \"" + s + "\"");
 	else
 		it->second = args->get_cdr()->get_car()->eval();

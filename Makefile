@@ -1,44 +1,44 @@
-CC = g++
-FLAGS = -std=c++11
-TARGET = main
-OBJS = Cell.o ConsCell.o DoubleCell.o eval.o IntCell.o main.o parse.o SymbolCell.o \
-		ProcedureCell.o PrimitiveProcedureCell.o
+vpath %.cpp src:lib
+vpath %.hpp include:lib
 
-${TARGET}: ${OBJS}
-	${CC} ${FLAGS} -o ${TARGET} $^
+CXX = g++
+CXXFLAGS = -std=c++11
+INCDIR = -Iinclude -Ilib
+SRCS = $(wildcard src/*.cpp lib/*.cpp)
+OBJS = $(patsubst %.cpp, obj/%.o, $(notdir $(SRCS)))
+CONSHPP_DEPS = cons.hpp Cell.hpp IntCell.hpp DoubleCell.hpp \
+ SymbolCell.hpp ConsCell.hpp ProcedureCell.hpp
+CMD = $(CXX) $(CXXFLAGS) $(INCDIR) -c $< -o $@
 
-Cell.o: Cell.hpp
-	${CC} ${FLAGS} -c Cell.cpp
+main: $(OBJS) obj/main.o
+	$(CXX) $(CXXFLAGS) -o $@ obj/*.o
 
-ConsCell.o: ConsCell.cpp Cell.hpp
-	${CC} ${FLAGS} -c ConsCell.cpp
+$(OBJS): | obj
 
-DoubleCell.o: DoubleCell.cpp Cell.hpp
-	${CC} ${FLAGS} -c DoubleCell.cpp
+obj:
+	@mkdir -p $@
 
-eval.o: eval.cpp eval.hpp cons.hpp Cell.hpp
-	${CC} ${FLAGS} -c eval.cpp
+obj/main.o: main.cpp parse.hpp eval.hpp $(CONSHPP_DEPS)
+	$(CMD)
 
-IntCell.o: IntCell.cpp Cell.hpp
-	${CC} ${FLAGS} -c IntCell.cpp
+obj/parse.o: parse.cpp parse.hpp $(CONSHPP_DEPS)
+	$(CMD)
 
-main.o: main.cpp parse.hpp cons.hpp Cell.hpp eval.hpp
-	${CC} ${FLAGS} -c main.cpp
+obj/eval.o: eval.cpp eval.hpp $(CONSHPP_DEPS)
+	$(CMD)
 
-parse.o: parse.cpp parse.hpp cons.hpp Cell.hpp
-	${CC} ${FLAGS} -c parse.cpp
+obj/SymbolCell.o: SymbolCell.cpp SymbolCell.hpp Cell.hpp Scope.hpp
+	$(CMD)
 
-SymbolCell.o: SymbolCell.cpp Cell.hpp
-	${CC} ${FLAGS} -c SymbolCell.cpp
+obj/ProcedureCell.o: ProcedureCell.cpp ProcedureCell.hpp Cell.hpp ConsCell.hpp Scope.hpp
+	$(CMD)
 
-ProcedureCell.o: ProcedureCell.cpp Cell.hpp
-	${CC} ${FLAGS} -c ProcedureCell.cpp
+obj/PrimitiveProcedureCell.o: PrimitiveProcedureCell.cpp PrimitiveProcedureCell.hpp \
+ Cell.hpp IntCell.hpp DoubleCell.hpp SymbolCell.hpp ConsCell.hpp ProcedureCell.hpp Scope.hpp
+	$(CMD)
 
-PrimitiveProcedureCell.o: PrimitiveProcedureCell.cpp Cell.hpp
-	${CC} ${FLAGS} -c PrimitiveProcedureCell.cpp
-
-doc:
-	doxygen doxygen.config
+obj/%.o: %.cpp %.hpp Cell.hpp
+	$(CMD)
 
 test_all: test_sim test_g test_gen test_ari test_easy test_a4
 
@@ -73,5 +73,4 @@ test_a4:
 	diff testfiles/testref_a4.txt testfiles/testoutput_a4.txt
 
 clean:
-	rm -f ${TARGET} ${OBJS} testfiles/testoutput*.txt
-
+	rm -rf main obj/

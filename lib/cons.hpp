@@ -9,9 +9,13 @@
 #ifndef CONS_HPP
 #define CONS_HPP
 
-#include "Cell.hpp"
 #include <string>
 #include <iostream>
+#include "IntCell.hpp"
+#include "DoubleCell.hpp"
+#include "SymbolCell.hpp"
+#include "ConsCell.hpp"
+#include "ProcedureCell.hpp"
 
 /**
  * \brief The null pointer value.

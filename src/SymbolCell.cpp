@@ -1,5 +1,9 @@
-#include "Cell.hpp"
+#include "SymbolCell.hpp"
+#include "Scope.hpp"
 using namespace std;
+
+Cell* const nil = new SymbolCell("()");
+CellPtr const smart_nil(nil);
 
 SymbolCell::SymbolCell(const string& s):symbol_m(s)
 {
@@ -27,11 +31,7 @@ CellPtr SymbolCell::eval()
 {
 	if(this == nil)
 		throw runtime_error("empty list cannot be evaluated");
-	map<string, CellPtr>::iterator it = search_table(symbol_m);
-	if(it == symbol_table.rbegin()->end())
-		throw runtime_error("try to evaluate an un-definded symbol Cell \"" + symbol_m + "\"");
-	else
-		return it->second;
+	return current_scope->eval(symbol_m);
 }
 
 void SymbolCell::print(std::ostream& os) const

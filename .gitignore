@@ -1,5 +1,5 @@
-testoutput_*
-*.o
+testfiles/testoutput_*
+obj/*.o
 main*
 !main.cpp
 

@@ -10,7 +10,6 @@
 #include <stdexcept>
 #include "parse.hpp"
 #include "eval.hpp"
-#include "Cell.hpp" // CellPtr
 #include <sstream>
 #include <fstream>
 #include <limits> // numeric_limits

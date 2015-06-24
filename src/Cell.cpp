@@ -75,20 +75,3 @@ CellPtr Cell::apply(CellPtr const args)
 {
 	throw runtime_error("try to apply with a Cell that cannot do");
 }
-
-
-Cell* const nil = new SymbolCell("()");
-CellPtr const smart_nil(nil);
-list<map<string, CellPtr> > symbol_table(1, PrimitiveProcedureCell::create_map());
-
-map<string, CellPtr>::iterator search_table(const string& s)
-{
-	list<map<string, CellPtr> >::iterator i = symbol_table.begin();
-	map<string, CellPtr>::iterator j;
-	for(; i != symbol_table.end(); ++i){
-		j = i->find(s);
-		if(j != i->end())
-			return j;
-	}
-	return j;
-}

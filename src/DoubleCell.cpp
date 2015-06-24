@@ -1,4 +1,4 @@
-#include "Cell.hpp"
+#include "DoubleCell.hpp"
 using namespace std;
 
 DoubleCell::DoubleCell(double d):double_m(d)

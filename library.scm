@@ -100,10 +100,10 @@
 						 (if (and (nullp obj1) (nullp obj2))
 							 1
 							 (if (or (nullp obj1) (nullp obj2))
-								 (print (quote "Error"))
+								 0
 								 (and (equal? (car obj1) (car obj2))
 									  (equal? (cdr obj1) (cdr obj2)))))
-						 (print (quote "Error: unsupported operands"))))))
+						 0))))
 
 
 (define assoc (lambda (key map)

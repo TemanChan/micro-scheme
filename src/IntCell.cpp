@@ -1,4 +1,4 @@
-#include "Cell.hpp"
+#include "IntCell.hpp"
 using namespace std;
 
 IntCell::IntCell(int i):int_m(i)
