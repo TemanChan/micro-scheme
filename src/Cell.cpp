@@ -8,7 +8,7 @@
 #include "SymbolCell.hpp"
 #include "ConsCell.hpp"
 #include "ProcedureCell.hpp"
-#include "BuiltinMacro.hpp"
+#include "BuiltinMacroCell.hpp"
 #include "Scope.hpp"
 using namespace std;
 
@@ -537,13 +537,13 @@ CellPtr pri_exit(const CellPtr& args)
 map<string, CellPtr> create_map()
 {
 	map<string, CellPtr> init_map;
-	init_map.insert(pair<string, CellPtr>("if", make_shared<BuiltinMacro>(&ifelse)));
-	init_map.insert(pair<string, CellPtr>("quote", make_shared<BuiltinMacro>(&quote)));
-	init_map.insert(pair<string, CellPtr>("define", make_shared<BuiltinMacro>(&define)));
-	init_map.insert(pair<string, CellPtr>("set!", make_shared<BuiltinMacro>(&macro_set)));
-	init_map.insert(pair<string, CellPtr>("lambda", make_shared<BuiltinMacro>(&lambda)));
-	init_map.insert(pair<string, CellPtr>("let", make_shared<BuiltinMacro>(&let)));
-	init_map.insert(pair<string, CellPtr>("load", make_shared<BuiltinMacro>(&loadfile)));
+	init_map.insert(pair<string, CellPtr>("if", make_shared<BuiltinMacroCell>(&ifelse)));
+	init_map.insert(pair<string, CellPtr>("quote", make_shared<BuiltinMacroCell>(&quote)));
+	init_map.insert(pair<string, CellPtr>("define", make_shared<BuiltinMacroCell>(&define)));
+	init_map.insert(pair<string, CellPtr>("set!", make_shared<BuiltinMacroCell>(&macro_set)));
+	init_map.insert(pair<string, CellPtr>("lambda", make_shared<BuiltinMacroCell>(&lambda)));
+	init_map.insert(pair<string, CellPtr>("let", make_shared<BuiltinMacroCell>(&let)));
+	init_map.insert(pair<string, CellPtr>("load", make_shared<BuiltinMacroCell>(&loadfile)));
 	init_map.insert(pair<string, CellPtr>("+", make_shared<PrimitiveProcedureCell>(&add)));
 	init_map.insert(pair<string, CellPtr>("-", make_shared<PrimitiveProcedureCell>(&subtract)));
 	init_map.insert(pair<string, CellPtr>("*", make_shared<PrimitiveProcedureCell>(&multiply)));

@@ -1,12 +1,12 @@
-#ifndef BUILTINMACRO_HPP
-#define BUILTINMACRO_HPP
+#ifndef BUILTINMACROCELL_HPP
+#define BUILTINMACROCELL_HPP
 
 #include "Cell.hpp"
 
-class BuiltinMacro:public Cell
+class BuiltinMacroCell:public Cell
 {
 public:
-	BuiltinMacro(CellPtr (*func)(const CellPtr&));
+	BuiltinMacroCell(CellPtr (*func)(const CellPtr&));
 	virtual bool is_macro() const;
 	virtual CellPtr transform_eval(const CellPtr& args);
 	virtual void print(std::ostream& os = std::cout) const;
