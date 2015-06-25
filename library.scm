@@ -39,22 +39,19 @@
 (define zero? (lambda (x) (if (< x 0) 0 (not (< 0 x)))))
 
 ;; general version of for-each: accept any positive number of lists of the same length
-(define for-each-get-list (lambda (args)
-							(if (nullp args)
+(define for-each-get-list (lambda (lsts)
+							(if (nullp lsts)
 								(quote (() ()))
 								(let ()
-								  (define result (for-each-get-list (cdr args)))
-								  (list (cons (car (car args)) (car result)) (cons (cdr (car args)) (car (cdr result))))))))
-
-(define for-each-help (lambda (func lists)
-						(define get-list-result (for-each-get-list lists))
-						(apply func (car get-list-result))
-						(if (nullp (car (car (cdr get-list-result))))
-							(quote ())
-							(for-each-help func (car (cdr get-list-result))))))
+								  (define result (for-each-get-list (cdr lsts)))
+								  (list (cons (car (car lsts)) (car result)) (cons (cdr (car lsts)) (car (cdr result))))))))
 
 (define for-each (lambda args
-				   (for-each-help (car args) (cdr args))))
+				   (define get-list-result (for-each-get-list (cdr args)))
+				   (apply (car args) (car get-list-result))
+				   (if (nullp (car (car (cdr get-list-result))))
+					   (quote ())
+					   (apply for-each (cons (car args) (car (cdr get-list-result)))))))
 
 ;; simple version of for-each: accept one list
 ;;(define for-each (lambda (func lst)
