@@ -1,3 +1,4 @@
+#include <stack>
 #include "ConsCell.hpp"
 using namespace std;
 
@@ -23,7 +24,26 @@ CellPtr ConsCell::get_cdr() const
 
 CellPtr ConsCell::eval()
 {
-	return get_car()->eval()->apply(get_cdr());
+	CellPtr c = get_car()->eval();
+	if(c->is_macro())
+		return c->transform_eval(get_cdr());
+	else if(c->is_procedure()){
+		stack<CellPtr> arg_stack;
+		CellPtr curr_cons = get_cdr();
+		while(!curr_cons->is_nil()){
+			arg_stack.push(curr_cons->get_car()->eval());
+			curr_cons = curr_cons->get_cdr();
+		}
+		
+		CellPtr arguments = smart_nil;
+		while(!arg_stack.empty()){
+			arguments = make_shared<ConsCell>(arg_stack.top(), arguments);
+			arg_stack.pop();
+		}
+		return c->apply(arguments);
+	}
+	else
+		throw runtime_error("expecting a procedure that can be applied to arguments");
 }
 
 void ConsCell::print(ostream& os) const

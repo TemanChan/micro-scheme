@@ -30,14 +30,14 @@ void ProcedureCell::print(ostream& os) const
 	os << "#<procedure>";
 }
 
-CellPtr ProcedureCell::apply(CellPtr const args)
+CellPtr ProcedureCell::apply(const CellPtr& args)
 {
 	ScopePtr local_scope = make_shared<Scope>(parent_scope_m);
 	if(formals_m->is_symbol()){
 		stack<CellPtr> arg_stack;
 		CellPtr curr_cons = args;
 		while(!curr_cons->is_nil()){
-			arg_stack.push(curr_cons->get_car()->eval());
+			arg_stack.push(curr_cons->get_car());
 			curr_cons = curr_cons->get_cdr();
 		}
 		
@@ -52,7 +52,7 @@ CellPtr ProcedureCell::apply(CellPtr const args)
 		CellPtr form_cons = formals_m;
 		CellPtr arg_cons = args;
 		while(!(form_cons->is_nil() || arg_cons->is_nil())){
-			local_scope->insert(Scope::value_type(form_cons->get_car()->get_symbol(), arg_cons->get_car()->eval()));
+			local_scope->insert(Scope::value_type(form_cons->get_car()->get_symbol(), arg_cons->get_car()));
 			form_cons = form_cons->get_cdr();
 			arg_cons = arg_cons->get_cdr();
 		}
@@ -76,4 +76,20 @@ CellPtr ProcedureCell::apply(CellPtr const args)
 		current_scope = temp;
 		throw;
 	}
+}
+
+PrimitiveProcedureCell::PrimitiveProcedureCell(CellPtr (*func)(const CellPtr&))
+	:ProcedureCell(smart_nil, smart_nil), func_m(func)
+{
+
+}
+
+CellPtr PrimitiveProcedureCell::apply(const CellPtr& args)
+{
+	return func_m(args);
+}
+
+void PrimitiveProcedureCell::print(ostream& os) const
+{
+	os << "#<primitive>";
 }

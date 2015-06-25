@@ -51,6 +51,7 @@ public:
 	virtual bool is_cons() const;
 	virtual bool is_procedure() const;
 	virtual bool is_nil() const;
+	virtual bool is_macro() const;
 	virtual int get_int() const;
 	virtual double get_double() const;
 	virtual std::string get_symbol() const;
@@ -60,7 +61,8 @@ public:
 	virtual CellPtr get_body() const;
 	virtual void print(std::ostream& os = std::cout) const = 0;
 	virtual CellPtr eval();
-	virtual CellPtr apply(CellPtr const args);
+	virtual CellPtr apply(const CellPtr& args);
+	virtual CellPtr transform_eval(const CellPtr& args);
 };
 
 extern Cell* const nil;

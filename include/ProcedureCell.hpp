@@ -11,12 +11,23 @@ public:
 	virtual CellPtr get_formals() const;
 	virtual CellPtr get_body() const;
 	virtual void print(std::ostream& os = std::cout) const;
-	virtual CellPtr apply(CellPtr const args);
+	virtual CellPtr apply(const CellPtr& args);
 
 private:
 	CellPtr formals_m;
 	CellPtr body_m;
 	ScopePtr parent_scope_m;
+};
+
+class PrimitiveProcedureCell:public ProcedureCell
+{
+public:
+	PrimitiveProcedureCell(CellPtr (*func)(const CellPtr&));
+	virtual CellPtr apply(const CellPtr& args);
+	virtual void print(std::ostream& os = std::cout) const;
+
+private:
+	CellPtr (*func_m)(const CellPtr&);
 };
 
 #endif
