@@ -6,7 +6,8 @@
 class ProcedureCell:public Cell
 {
 public:
-	ProcedureCell(CellPtr formals, CellPtr body, ScopePtr parent_scope = ScopePtr());
+	ProcedureCell(CellPtr formals, CellPtr body, ScopePtr parent_scope);
+	ProcedureCell(CellPtr formals, CellPtr body, ScopeWPtr parent_scope = ScopeWPtr());
 	virtual bool is_procedure() const;
 	virtual CellPtr get_formals() const;
 	virtual CellPtr get_body() const;
@@ -16,7 +17,8 @@ public:
 private:
 	CellPtr formals_m;
 	CellPtr body_m;
-	ScopePtr parent_scope_m;
+	ScopePtr parent_scope_sp;
+	ScopeWPtr parent_scope_wp;
 };
 
 class PrimitiveProcedureCell:public ProcedureCell

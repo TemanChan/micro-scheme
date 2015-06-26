@@ -70,6 +70,8 @@ extern CellPtr const smart_nil;
 
 class Scope;
 typedef std::shared_ptr<Scope> ScopePtr;
+typedef std::weak_ptr<Scope> ScopeWPtr;
+extern bool is_sp_needed;
 extern ScopePtr global_scope;
 extern ScopePtr current_scope;
 

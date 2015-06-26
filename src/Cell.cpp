@@ -162,7 +162,10 @@ CellPtr lambda(const CellPtr& args)
 			curr_cons = curr_cons->get_cdr();
 		}
 	}
-	return make_shared<ProcedureCell>(formals, body, current_scope);
+	if(is_sp_needed)
+		return make_shared<ProcedureCell>(formals, body, current_scope);
+	else
+		return make_shared<ProcedureCell>(formals, body, ScopeWPtr(current_scope));
 }
 
 CellPtr let(const CellPtr& args)
@@ -184,7 +187,10 @@ CellPtr let(const CellPtr& args)
 		arguments = make_shared<ConsCell>(curr_pair->get_cdr()->get_car(), arguments);
 		curr_cons = curr_cons->get_cdr();
 	}
-	return ProcedureCell(formals, body, current_scope).apply(arguments);
+	if(is_sp_needed)
+		return ProcedureCell(formals, body, current_scope).apply(arguments);
+	else
+		return ProcedureCell(formals, body, ScopeWPtr(current_scope)).apply(arguments);
 }
 
 CellPtr macro_set(const CellPtr& args)
@@ -567,5 +573,6 @@ map<string, CellPtr> create_map()
 	return init_map;
 }
 
-ScopePtr global_scope = make_shared<Scope>(nullptr, create_map());
+bool is_sp_needed = false;
+ScopePtr global_scope = make_shared<Scope>(ScopeWPtr(), create_map());
 ScopePtr current_scope = global_scope;

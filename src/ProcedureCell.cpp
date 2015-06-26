@@ -5,7 +5,13 @@
 using namespace std;
 
 ProcedureCell::ProcedureCell(CellPtr formals, CellPtr body, ScopePtr parent_scope)
-:formals_m(formals), body_m(body), parent_scope_m(parent_scope)
+:formals_m(formals), body_m(body), parent_scope_sp(parent_scope)
+{
+
+}
+
+ProcedureCell::ProcedureCell(CellPtr formals, CellPtr body, ScopeWPtr parent_scope)
+:formals_m(formals), body_m(body), parent_scope_wp(parent_scope)
 {
 
 }
@@ -32,7 +38,10 @@ void ProcedureCell::print(ostream& os) const
 
 CellPtr ProcedureCell::apply(const CellPtr& args)
 {
-	ScopePtr local_scope = make_shared<Scope>(parent_scope_m);
+	is_sp_needed = false;
+	ScopePtr local_scope = make_shared<Scope>(parent_scope_wp);
+	if(parent_scope_sp)
+		local_scope = make_shared<Scope>(ScopeWPtr(parent_scope_sp));
 	if(formals_m->is_symbol()){
 		stack<CellPtr> arg_stack;
 		CellPtr curr_cons = args;
@@ -69,17 +78,20 @@ CellPtr ProcedureCell::apply(const CellPtr& args)
 			body_cons->get_car()->eval();
 			body_cons = body_cons->get_cdr();
 		}
+		is_sp_needed = true;
 		CellPtr result = body_cons->get_car()->eval();
 		current_scope = temp;
+		is_sp_needed = false;
 		return result;
 	}catch(...){
 		current_scope = temp;
+		is_sp_needed = false;
 		throw;
 	}
 }
 
 PrimitiveProcedureCell::PrimitiveProcedureCell(CellPtr (*func)(const CellPtr&))
-	:ProcedureCell(smart_nil, smart_nil), func_m(func)
+	:ProcedureCell(smart_nil, smart_nil, ScopeWPtr(global_scope)), func_m(func)
 {
 
 }
