@@ -574,5 +574,5 @@ map<string, CellPtr> create_map()
 }
 
 bool is_sp_needed = false;
-ScopePtr global_scope = make_shared<Scope>(ScopeWPtr(), create_map());
+ScopePtr global_scope = make_shared<Scope>(ScopePtr(), create_map());
 ScopePtr current_scope = global_scope;

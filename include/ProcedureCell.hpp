@@ -6,8 +6,8 @@
 class ProcedureCell:public Cell
 {
 public:
-	ProcedureCell(CellPtr formals, CellPtr body, ScopePtr parent_scope);
-	ProcedureCell(CellPtr formals, CellPtr body, ScopeWPtr parent_scope = ScopeWPtr());
+	explicit ProcedureCell(CellPtr formals, CellPtr body, ScopePtr parent_scope);
+	explicit ProcedureCell(CellPtr formals, CellPtr body, ScopeWPtr parent_scope = ScopeWPtr());
 	virtual bool is_procedure() const;
 	virtual CellPtr get_formals() const;
 	virtual CellPtr get_body() const;
@@ -17,6 +17,7 @@ public:
 private:
 	CellPtr formals_m;
 	CellPtr body_m;
+	// only one of following two smart_ptrs will be used, default is weak_ptr
 	ScopePtr parent_scope_sp;
 	ScopeWPtr parent_scope_wp;
 };

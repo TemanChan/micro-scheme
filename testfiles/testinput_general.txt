@@ -113,3 +113,8 @@ e2
 (for-each (apply-print *) (list 1 2 3 4 5.6 7.8 9.0) (list 0.9 8.7 6.5 4 3 2 1) (list 12 23 34 45 56 67 78))
 (for-each (apply-print <) (list 1 2 3 4 5.6 7.8 9.0) (list 0.9 8.7 6.5 4 3 2 1))
 (for-each (apply-print *) (list 1 2 3 4 5) (list 6 7 8 9 1.2) (list 1 2 3 4 5) (list 6 7 8 9 1.2) (list 1 2 3 4 5) (list 6 7 8 9 1.2) (list 1 2 3 4 5) (list 6 7 8 9 1.2) (list 1 2 3 4 5) (list 6 7 8 9 1.2) (list 1 2 3 4 5) (list 6 7 8 9 1.2) (list 1 2 3 4 5) (list 6 7 8 9 1.2) (list 1 2 3 4 5) (list 6 7 8 9 1.2) (list 1 2 3 4 5) (list 6 7 8 9 1.2) (list 1 2 3 4 5) (list 6 7 8 9 1.2))
+(define hehe (lambda (x)
+					  ((lambda () ((lambda () ((lambda () ((lambda () (lambda args (print (apply x args)))))))))))))
+((hehe *) 10 20 23 4 51 34.5)
+(define hehehe (lambda () (let () (let () (let () (let () (lambda () (print e2))))))))
+((hehehe))

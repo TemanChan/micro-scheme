@@ -11,7 +11,7 @@ public:
 	typedef Map::key_type key_type;
 	typedef Map::size_type size_type;
 	typedef Map::iterator iterator;
-	explicit Scope(ScopeWPtr parent = ScopeWPtr(), const Map& local = Map());
+	explicit Scope(ScopePtr parent = ScopePtr(), const Map& local = Map());
 	std::pair<iterator, bool> insert(const value_type& val);
 	iterator find(const key_type& k);
 	iterator end();
@@ -20,7 +20,7 @@ public:
 
 private:
 	Map local_scope;
-	ScopeWPtr parent_scope;
+	ScopePtr parent_scope;
 };
 
 #endif

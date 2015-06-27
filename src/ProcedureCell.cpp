@@ -39,9 +39,9 @@ void ProcedureCell::print(ostream& os) const
 CellPtr ProcedureCell::apply(const CellPtr& args)
 {
 	is_sp_needed = false;
-	ScopePtr local_scope = make_shared<Scope>(parent_scope_wp);
+	ScopePtr local_scope = make_shared<Scope>(parent_scope_wp.lock());
 	if(parent_scope_sp)
-		local_scope = make_shared<Scope>(ScopeWPtr(parent_scope_sp));
+		local_scope = make_shared<Scope>(parent_scope_sp);
 	if(formals_m->is_symbol()){
 		stack<CellPtr> arg_stack;
 		CellPtr curr_cons = args;
