@@ -14,7 +14,7 @@ public:
 
 private:
     void eval_print(const CellPtr &root, std::ostream &os) const;
-    CellPtr to_basic_cell(const std::string &s) const;
+    CellPtr to_basic_cell(const string_type &s) const;
     CellPtr lp; // left parenthesis
 };
 

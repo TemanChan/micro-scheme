@@ -24,7 +24,7 @@ void Parser::parse_eval_print(istream &is, ostream &os) const{
         while(getline(is, sexpr)){
             t.feed(sexpr);
             while(t.has_next()){
-                const string &token = t.next();
+                const string_type &token = t.next();
                 if(token[0] == ';'){
                     // support comments
                     t.feed("");
@@ -75,7 +75,7 @@ void Parser::eval_print(const CellPtr &root, ostream &os) const{
     }
 }
 
-CellPtr Parser::to_basic_cell(const string &s) const{
+CellPtr Parser::to_basic_cell(const string_type &s) const{
     int type = 0; // 0 Int, 1 Double, 2 Symbol
     int i = 0;
     if(s[0] == '+' || s[0] == '-'){
@@ -97,5 +97,10 @@ CellPtr Parser::to_basic_cell(const string &s) const{
     if(type == 1) return make_shared<DoubleCell>(stod(s));
     if(isdigit(s[0]))
         throw runtime_error("illegal starting character of identifier");
+    #if __cplusplus > 201402L
+    return make_shared<SymbolCell>(s.to_string());
+    #else
     return make_shared<SymbolCell>(s);
+    #endif
 }
+

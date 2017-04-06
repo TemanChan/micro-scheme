@@ -2,49 +2,59 @@
 #include <cctype> // isspace, isdigit
 using namespace std;
 
-
 Tokenizer::Tokenizer(){
-    is_p = new stringstream;
-    ss_p = new stringstream;
+    str_p = new string_type();
+    pos = 0;
 }
 
 Tokenizer::~Tokenizer(){
-    delete is_p;
-    delete ss_p;
+    delete str_p;
+}
+
+void Tokenizer::skip_spaces(){
+    const string_type &str = (*str_p);
+    while(pos < str.size() && isspace(str[pos]))
+        ++pos;
 }
 
 void Tokenizer::feed(const string &s){
-    delete is_p;
-    is_p = new stringstream(s);
-    char c;
-    // skip leading spaces
-    while(is_p->get(c) && isspace(c));
-    if(!is_p->eof()) is_p->unget();
+    delete str_p;
+    str_p = new string_type(s);
+    pos = 0;
+    skip_spaces();
 }
 
 bool Tokenizer::has_next(){
-    return !is_p->eof();
+    return pos < str_p->size();
 }
 
-string Tokenizer::next(){
-    char c;
-    ss_p->str(""); // clear contents in stringstream
-    while(is_p->get(c) && !isspace(c)){
-        if(c == '(' || c == ')'){
-            if(ss_p->rdbuf()->in_avail() == 0) // first char is a parenthesis
-                (*ss_p) << c;
-            else // a parenthesis after some non-white-space chars
-                is_p->unget();
+string_type Tokenizer::next(){
+    const string_type &str = (*str_p);
+    int last = pos;
+    while(last < str.size()){
+        char c = str[last];
+        if(isspace(c) || c == '(' || c == ')')
             break;
-        }
-        (*ss_p) << c;
+        ++last;
     }
-
-    // is_p->eof() || isspace(c) || c is a parenthesis
-    if(!is_p->eof()){
-        while(is_p->get(c) && isspace(c));
-        // is_p->eof() || !isspace(c)
-        if(!is_p->eof()) is_p->unget();
+    if(last == pos){ // str[pos] is a parenthesis
+        ++last;
     }
-    return ss_p->str();
+    const string_type &res = str.substr(pos, last - pos);
+    pos = last;
+    skip_spaces();
+    return res;
 }
+
+#if __cplusplus > 201402L
+using std::experimental::string_view;
+int stoi(const string_view &s){
+    return stoi(s.to_string());
+}
+
+double stod(const string_view &s){
+    return stod(s.to_string());
+}
+#endif
+
+
