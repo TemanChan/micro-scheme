@@ -206,20 +206,14 @@ CellPtr macro_set(const CellPtr& args)
 	return smart_nil;	
 }
 
-void readfile(ifstream& fin); // defined in main.cpp
+void readfile(const char *fn); // defined in main.cpp
 CellPtr loadfile(const CellPtr& args)
 {
 	if(args->is_nil() || !args->get_cdr()->is_nil())
 		throw runtime_error("load operator requires exactly one operand");
 	if(args->get_car()->is_symbol()){
 		string filename = args->get_car()->get_symbol();
-		ifstream file(filename.c_str());
-		if(file.is_open()){
-			readfile(file);
-			file.close();
-		}
-		else
-			throw runtime_error("cannot open file \"" + filename + "\"");
+		readfile(filename.c_str());
 		return smart_nil;
 	}
 	else
@@ -538,6 +532,11 @@ CellPtr pri_exit(const CellPtr& args)
 	}
 	else
 		exit(0);
+}
+
+ostream &operator<<(ostream &os, const Cell &cell){
+	cell.print(os);
+	return os;
 }
 
 map<string, CellPtr> create_map()

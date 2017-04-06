@@ -8,156 +8,15 @@
  */
 
 #include <stdexcept>
-#include "parse.hpp"
-#include "eval.hpp"
+#include "Parser.hpp"
+#include <istream>
 #include <sstream>
 #include <fstream>
 #include <limits> // numeric_limits
 
 using namespace std;
 
-/**
- * \brief Parse and evaluate the s-expression, and print the result.
- * \param sexpr The string vaule holding the s-expression.
- */
-void parse_eval_print(string sexpr)
-{
-	try {
-		Cell* c = parse(sexpr);
-		CellPtr root = (c == nil) ? smart_nil : CellPtr(c);
-		CellPtr result(eval(root));
-		if(result != smart_nil)
-			cout << *result << endl;
-	} catch (runtime_error &e) {
-		cerr << "ERROR: " << e.what() << endl;
-	} catch (logic_error &e) {
-		cerr << "LOGIC ERROR: " << e.what() << endl;
-		exit(1);
-	}
-}
-
-/**
- * \brief Read single single symbol into the end of a string buffer.
- * \param fin The input file stream.
- * \param str The string buffer.
- */
-void readsinglesymbol(ifstream& fin, string& str)
-{
-	char currentchar;
-	fin.get(currentchar);
-	if (fin.eof()) {
-		return;
-	}
-	if (currentchar == '\"') {
-		// read a string literal
-		do {
-			str += currentchar;
-			fin.get(currentchar);
-		} while (currentchar != '\"');
-		str += currentchar;
-	} else {
-		do {
-			str += currentchar;
-			fin.get(currentchar);
-		} while ((false == iswhitespace(currentchar)) 
-				 && ('(' != currentchar) 
-				 && (false == fin.eof()));
-		fin.putback(currentchar);  
-	}
-}
-
-/**
- * \brief Read, parse, evaluate, and print the expression one by one from
- * the input stream.
- *
- * \param fin The input file stream.
- */
-void readfile(ifstream& fin)
-{
-	string sexp;
-	bool isstartsexp = false;
-	int inumleftparenthesis = 0;
-	char prev_char = '\0';
-
-	// check whether to read the end
-	while (!fin.eof()) {
-		// read char by char
-		char currentchar;
-		fin.get(currentchar);
-		if (fin.eof()) {
-			break;
-		}
-
-		// skip some white space before new s-expression occurs
-		if ((true == iswhitespace(currentchar))&&(false == isstartsexp)) {
-			continue;
-		}
-
-		// if current char is ';', move to the next line
-		if(currentchar  == ';' && prev_char != '\''){
-			fin.ignore(numeric_limits<streamsize>::max(), '\n');
-			continue;
-		}
-
-		// run across a new s-expression
-		if ((false == isstartsexp)&&(false == iswhitespace(currentchar))) {
-			// check whether single symbol
-			if ('(' != currentchar)	{
-				// read a single symbol
-				fin.putback(currentchar);
-				readsinglesymbol(fin, sexp);
-				// call function
-				parse_eval_print(sexp);
-				sexp.clear();
-			}	else {
-				// start new expression
-				isstartsexp = true;
-				// read left parenthesis
-				sexp += currentchar;
-				inumleftparenthesis = 1;
-			}
-		} else {
-			// in the process of reading the current s-expression
-			if (true == isstartsexp) {
-				if (true == iswhitespace(currentchar)) {
-					// append a blankspace
-					//sexp += ' ';
-					sexp += currentchar;
-				} else {
-					// append current character
-					sexp += currentchar;
-					// count left parenthesis
-					if ('(' == currentchar) {
-						inumleftparenthesis ++;
-					}
-					if (')' == currentchar) {
-						inumleftparenthesis --;
-						// check whether current s-expression ends
-						if (0 == inumleftparenthesis) {
-							// current s-expression ends
-							isstartsexp  =  false;
-							// call functions
-							parse_eval_print(sexp);
-							sexp.clear();
-						}
-					}
-				}
-			}
-		}
-		prev_char = currentchar;
-	}
-}
-
-/**
- * \brief Read the expressions from the file.
- * \param fn The file name.
- */
-void readfile(char* fn)
-{
-	ifstream fin(fn);
-	readfile(fin);
-	fin.close();
-}
+const Parser parser;
 
 /**
  * \brief Read, parse, evaluate, and print the expression one by one from
@@ -165,17 +24,20 @@ void readfile(char* fn)
  */
 void readconsole()
 {
-	string sexpr;
-	// read the input
-	do {
-		cout << "> ";
-		getline(cin, sexpr);
-		if (cin.eof()) {
-			cout << endl;
-			break;
-		}
-		parse_eval_print(sexpr);
-	} while (true);
+	parser.parse_eval_print(cin, cout);
+}
+
+/**
+ * \brief Read, parse, evaluate the expression one by one from a file
+ */
+void readfile(const char *fn)
+{
+	ifstream ifs(fn);
+	if(ifs.is_open()){
+		parser.parse_eval_print(ifs, cout);
+		ifs.close();
+	}else
+		throw runtime_error("cannot open file \"" + string(fn) + "\"");
 }
 
 /**
@@ -183,13 +45,7 @@ void readconsole()
  */
 int main(int argc, char* argv[])
 {
-	if(argc < 3){
-		ifstream file("library.scm");
-		if(file.is_open()){
-			readfile(file);
-			file.close();
-		}
-	}
+	readfile("library.scm");
 	switch(argc) {
 	case 1:
 		// read from the standard input

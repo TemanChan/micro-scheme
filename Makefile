@@ -1,12 +1,12 @@
-vpath %.cpp src:lib
-vpath %.hpp include:lib
+vpath %.cpp src
+vpath %.hpp include
 
 CXX = g++
 CXXFLAGS = -std=c++11
 INCDIR = -Iinclude -Ilib
-SRCS = $(wildcard src/*.cpp lib/*.cpp)
+SRCS = $(wildcard src/*.cpp)
 OBJS = $(patsubst %.cpp, obj/%.o, $(notdir $(SRCS)))
-CONSHPP_DEPS = cons.hpp Cell.hpp IntCell.hpp DoubleCell.hpp \
+CONSHPP_DEPS = Cell.hpp IntCell.hpp DoubleCell.hpp \
  SymbolCell.hpp ConsCell.hpp ProcedureCell.hpp
 CMD = $(CXX) $(CXXFLAGS) $(INCDIR) -c $< -o $@
 
@@ -18,10 +18,10 @@ $(OBJS): | obj
 obj:
 	@mkdir -p $@
 
-obj/main.o: main.cpp parse.hpp eval.hpp $(CONSHPP_DEPS)
+obj/main.o: main.cpp Parser.hpp $(CONSHPP_DEPS)
 	$(CMD)
 
-obj/parse.o obj/eval.o:obj/%.o: %.cpp %.hpp $(CONSHPP_DEPS)
+obj/Parser.o:obj/%.o: %.cpp %.hpp $(CONSHPP_DEPS)
 	$(CMD)
 
 obj/SymbolCell.o: SymbolCell.cpp SymbolCell.hpp Cell.hpp Scope.hpp

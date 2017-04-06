@@ -75,4 +75,6 @@ extern bool is_sp_needed;
 extern ScopePtr global_scope;
 extern ScopePtr current_scope;
 
+std::ostream &operator<<(std::ostream &os, const Cell &cell);
+
 #endif
